@@ -10,7 +10,7 @@ export interface SchemaProp {
 export const Prop = (prop: SchemaProp): PropertyDecorator => {
 	return (target: Object, propertyKey: string | symbol) => {
 		Reflect.defineMetadata(
-			target.constructor.name,
+			`${target.constructor.name}:${propertyKey.toString()}`,
 			{
 				[propertyKey]: prop,
 			},
