@@ -1,0 +1,23 @@
+{
+	"scripts": {
+		"build": "tsc",
+		"clean": "rm -rf .build",
+		"deploy": "sls deploy"
+	},
+	"devDependencies": {
+		"serverless-dotenv-plugin": "^6.0.0",
+		"serverless-plugin-typescript": "^2.1.5",
+		"serverless-webpack": "^5.15.0",
+		"ts-loader": "^9.5.1",
+		"typescript": "^5.6.3",
+		"webpack": "^5.96.1",
+		"webpack-node-externals": "^3.0.0"
+	},
+	"dependencies": {
+		"axios": "^1.7.7",
+		"dotenv": "^16.4.5",
+		"mongoose": "^8.8.1",
+		"openai": "^4.71.1",
+		"reflect-metadata": "^0.2.2"
+	}
+}

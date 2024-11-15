@@ -1,0 +1,38 @@
+org: techgrowthlabs
+app: conversales-api
+service: conversales-api
+frameworkVersion: "3"
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+
+custom:
+  scripts:
+    hooks:
+      "before:deploy:deploy": "npm run build"
+      "after:deploy:deploy": "npm run clean"
+
+functions:
+  api:
+    handler: index.handler
+    events:
+      - httpApi:
+          path: /
+          method: get
+  webhook-whatsapp:
+    handler: src/webhook/index.whatsapp
+    events:
+      - httpApi:
+          path: /webhook/whatsapp
+          method: post
+  webhook-telegram:
+    handler: src/webhook/index.telegram
+    events:
+      - httpApi:
+          path: /webhook/telegram
+          method: post
