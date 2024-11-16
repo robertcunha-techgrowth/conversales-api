@@ -11,7 +11,9 @@ export abstract class WebhookService {
 		protected readonly ticketModel: Model<Ticket>,
 		protected readonly stepService: StepService,
 		channelId: string
-	) {}
+	) {
+		this.channelId = channelId;
+	}
 
 	abstract webhook(data: WebhookData): Promise<void>;
 
