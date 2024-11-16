@@ -1,15 +1,11 @@
 import { Channel } from "../channel/channel";
-import { Product } from "../product/product.entity";
-import {
-	WhatsapBusiness,
-	WhatsappBusinessButton,
-} from "../channel/whatsapp/whatsapp";
 import { StatusTicket, Ticket } from "../ticket/ticket";
 import { ChatGptRoles } from "../chatbot/chatgpt/chatgpt";
 import { Step } from "./step.entity";
 import { ChatBot } from "../chatbot/chatbot";
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
+import { ChatCompletionMessageParam } from "openai/resources";
 
 export interface StepService {
 	run(ticket: Ticket, contentFromWpp: string): Promise<void>;
@@ -33,28 +29,36 @@ export class NormalStep implements StepService {
 			content: this.prompt,
 			role: ChatGptRoles.System,
 		};
-		await this.chatbot.sendMessage(config.content, []);
+		const history: ChatCompletionMessageParam[] = [];
+		await this.chatbot.sendMessage(config.content, history);
+		return history;
 	}
 
 	async run(ticket: Ticket, contentFromWpp: string) {
 		console.log(ticket);
 		const step = await this.findStep(ticket.currentStep);
 
-		if (step.isFirstStep) {
-			await this.startPrompt();
+		const history = await this.firstStep(step);
+
+		if (history) {
+			ticket.history = history;
 		}
 
-		const { statusCode } = await this.chatbot.sendMessage(
+		const contentResponse = await this.chatbot.sendMessage(
 			JSON.stringify({
 				message: contentFromWpp,
-				rules: step.rules,
+				rule: step.rule,
 			}),
 			ticket.history
 		);
 
+		const { statusCode } = JSON.parse(contentResponse);
+
+		console.log(statusCode);
+
 		await this.channel.sendMessage(
-			ticket.userPhone,
-			step.texts[statusCode as 200 | 400]
+			ticket.from,
+			step.texts[statusCode.toString() as "200" | "400"]
 		);
 
 		// toDo: return this to chatbot
@@ -77,7 +81,7 @@ export class NormalStep implements StepService {
 		}
 	}
 
-	private async findStep(currentStep: number) {
+	private async findStep(currentStep: number): Promise<Step> {
 		const step = await this.model
 			.findOne<Step>({
 				stepNumber: currentStep,
@@ -93,6 +97,14 @@ export class NormalStep implements StepService {
 			};
 		}
 		return step;
+	}
+
+	private async firstStep(step: Step) {
+		if (step.isFirstStep) {
+			const history = await this.startPrompt();
+			return history;
+		}
+		return null;
 	}
 }
 

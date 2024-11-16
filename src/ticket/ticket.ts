@@ -20,9 +20,8 @@ export class Ticket {
 		default: () => {
 			return new mongoose.Types.ObjectId();
 		},
-		required: true,
 	})
-	_id: mongoose.Types.ObjectId;
+	_id?: mongoose.Types.ObjectId;
 
 	@Prop({
 		type: String,
@@ -31,25 +30,24 @@ export class Ticket {
 	documentId: string;
 
 	@Prop({
-		type: StatusTicket,
+		type: String,
 		required: true,
 	})
 	status: StatusTicket;
 
 	@Prop({
-		type: String,
-		required: true,
+		type: [Object],
 		default: (): OpenAI.Chat.Completions.ChatCompletionMessageParam[] => {
 			return [];
 		},
 	})
-	history: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
+	history?: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
 
 	@Prop({
 		type: String,
 		required: true,
 	})
-	userPhone: string;
+	from: string;
 
 	@Prop({
 		type: Boolean,
@@ -72,9 +70,9 @@ export class Ticket {
 
 	@Prop({
 		type: Number,
-		required: true,
+		default: () => 10,
 	})
-	retryCount: number;
+	retryCount?: number;
 
 	@Prop({
 		type: Boolean,
@@ -95,8 +93,9 @@ export class Ticket {
 	email?: string;
 
 	@Prop({
-		type: [Product],
+		type: [mongoose.Types.ObjectId],
 		required: false,
+		ref: Product.name,
 	})
 	product?: Product[];
 

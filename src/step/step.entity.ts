@@ -3,6 +3,25 @@ import { Schema } from "../common/database/schema.decorator";
 import { SchemaFactory } from "../common/database/schema.factory";
 
 @Schema({
+	id: false,
+})
+export class StepTexts {
+	@Prop({
+		type: String,
+		required: true,
+	})
+	"200": string;
+
+	@Prop({
+		type: String,
+		required: true,
+	})
+	"400": string;
+}
+
+export const StepTextsSchema = SchemaFactory.createFromClass(StepTexts);
+
+@Schema({
 	timestamps: true,
 })
 export class Step {
@@ -16,16 +35,13 @@ export class Step {
 		type: String,
 		required: true,
 	})
-	rules: string;
+	rule: string;
 
 	@Prop({
-		type: Object,
+		type: StepTextsSchema, // Reference the schema here
 		required: true,
 	})
-	texts: {
-		"200": string;
-		"400": string;
-	};
+	texts: StepTexts;
 
 	@Prop({
 		type: Boolean,

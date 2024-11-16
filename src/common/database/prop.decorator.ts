@@ -1,10 +1,12 @@
 import "reflect-metadata";
+import { globalTarget } from "../dependency-injection/global-target";
 
 export interface SchemaProp {
 	type: any;
 	required?: boolean;
 	unique?: boolean;
 	default?: Function;
+	ref?: string;
 }
 
 export const Prop = (prop: SchemaProp): PropertyDecorator => {
@@ -14,7 +16,7 @@ export const Prop = (prop: SchemaProp): PropertyDecorator => {
 			{
 				[propertyKey]: prop,
 			},
-			target
+			globalTarget
 		);
 	};
 };

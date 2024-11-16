@@ -3,10 +3,7 @@ import { Inject } from "../common/dependency-injection/inject";
 import { XApiKeyGuard } from "../common/auth/x-api-key.guard";
 import { WebhookWhatsappData } from "./webhook-whatsapp.service";
 import { Controller } from "../common/dependency-injection/controller.decorator";
-import {
-	TelegramApiGuard,
-	TelegramWebhookGuard,
-} from "../common/auth/telegram-webhook.guard";
+import { TelegramApiGuard } from "../common/auth/telegram-webhook.guard";
 import { MongooseModule } from "../common/database/mongoose.module";
 
 @Controller()
@@ -20,6 +17,7 @@ export class WebhookHandler {
 
 	@TelegramApiGuard()
 	async telegram(event: any) {
+		// toDo: this connection must be performed by module
 		await MongooseModule.forRoot(process.env.MONGO_URI);
 		try {
 			const body = JSON.parse(event.body);

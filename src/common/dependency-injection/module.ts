@@ -80,7 +80,5 @@ export const ModuleHandler = (
 		);
 
 		setExports(target.name, exports ?? []);
-
-		// (target as any).
 	};
 };

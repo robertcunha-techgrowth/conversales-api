@@ -2,17 +2,21 @@ import { globalTarget } from "./global-target";
 import { ModuleMetadata } from "./module-metadata";
 
 export abstract class BaseProvider {
+	constructor(protected readonly moduleMetadata: ModuleMetadata) {}
+
 	public abstract createInstance(moduleName: string, provide: string): any;
+
+	public getInstance(moduleName: string, provide: string) {
+		return this.moduleMetadata.getProviderMetadata(moduleName, provide);
+	}
 }
 
 export abstract class BaseServiceProvider extends BaseProvider {
 	provide?: string;
-	protected moduleMetadata: ModuleMetadata;
 	public priority: number;
 
 	constructor(priority: number) {
-		super();
-		this.moduleMetadata = new ModuleMetadata();
+		super(new ModuleMetadata());
 		this.priority = priority;
 	}
 }

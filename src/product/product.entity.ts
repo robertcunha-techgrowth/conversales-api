@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Prop } from "../common/database/prop.decorator";
 import { Schema } from "../common/database/schema.decorator";
 import { SchemaFactory } from "../common/database/schema.factory";
@@ -6,6 +7,12 @@ import { SchemaFactory } from "../common/database/schema.factory";
 	timestamps: true,
 })
 export class Product {
+	@Prop({
+		type: mongoose.Types.ObjectId,
+		default: () => new mongoose.Types.ObjectId(),
+	})
+	_id?: mongoose.Types.ObjectId;
+
 	@Prop({
 		type: String,
 		required: true,

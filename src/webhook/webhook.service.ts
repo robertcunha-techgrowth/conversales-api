@@ -19,6 +19,7 @@ export abstract class WebhookService {
 
 	protected async getTicket(from: string): Promise<Ticket> {
 		const documentId = `${this.channelId}:${from}`;
+		console.log(`Getting ticket for ${documentId}`);
 		const ticket = await this.ticketModel.findOne({
 			documentId,
 			status: StatusTicket.Active,
@@ -27,9 +28,9 @@ export abstract class WebhookService {
 			const newTicket = await this.ticketModel.create({
 				documentId,
 				status: StatusTicket.Active,
-				history: [],
-				userPhone: "",
+				from,
 				currentStep: 1,
+				channel: this.channelId,
 			});
 			return newTicket.toObject();
 		}

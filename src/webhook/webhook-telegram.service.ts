@@ -15,6 +15,9 @@ export interface WebhookTelegramData extends WebhookData {
 			username: string;
 		};
 		text: string;
+		chat: {
+			id: string;
+		};
 	};
 }
 
@@ -30,9 +33,11 @@ export class WebhookTelegramService extends WebhookService {
 	async webhook(data: WebhookTelegramData) {
 		const { text } = data.message;
 
-		const { id } = data.message.from;
+		// const { id } = data.message.from;
 
-		console.log(`Received message from ${id}`);
+		// console.log(`Received message from ${id}`);
+
+		const { id } = data.message.chat;
 
 		const ticket = await this.getTicket(id.toString());
 

@@ -2,7 +2,7 @@ import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
 import { StepService } from "../step/step.service";
-import { Ticket, StatusTicket } from "../ticket/ticket";
+import { Ticket } from "../ticket/ticket";
 import { WebhookData, WebhookService } from "./webhook.service";
 
 export interface WebhookWhatsappData extends WebhookData {

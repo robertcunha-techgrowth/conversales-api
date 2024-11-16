@@ -1,9 +1,12 @@
 import OpenAI from "openai";
-import { ChatBotResponse } from "./chatgpt/chatgpt";
 
+export interface ChatBotResponse {
+	statusCode: number;
+	message?: string;
+}
 export interface ChatBot {
 	sendMessage(
 		message: string,
 		history: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
-	): Promise<ChatBotResponse>;
+	): Promise<string>;
 }

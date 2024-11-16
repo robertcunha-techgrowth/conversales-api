@@ -1,14 +1,8 @@
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources";
-import { StepService } from "../../step/step.service";
 import { Injectable } from "../../common/dependency-injection/injectable";
 import { Inject } from "../../common/dependency-injection/inject";
-import { ChatBot } from "../chatbot";
-
-export interface ChatBotResponse {
-	statusCode: number;
-	message?: string;
-}
+import { ChatBot, ChatBotResponse } from "../chatbot";
 
 export enum ChatGptRoles {
 	User = "user",
@@ -26,7 +20,7 @@ export class ChatGpt implements ChatBot {
 	async sendMessage(
 		message: string,
 		history: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
-	): Promise<ChatBotResponse> {
+	): Promise<string> {
 		const completion = await this.gptSendMessage(
 			message,
 			ChatGptRoles.User,
@@ -34,15 +28,14 @@ export class ChatGpt implements ChatBot {
 		);
 		const usage = completion.usage?.total_tokens;
 		console.log(`Total tokens used: ${usage}`);
-		console.log(completion);
-		completion.choices.forEach((choice) => console.log(choice.message.content));
 		const content = completion.choices[0].message.content;
 		const config: ChatCompletionMessageParam = {
 			content: content,
 			role: ChatGptRoles.Assistant,
 		};
 		history.push(config);
-		return JSON.parse(content);
+		console.log(content);
+		return content;
 	}
 
 	private async gptSendMessage(
