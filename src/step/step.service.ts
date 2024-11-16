@@ -37,11 +37,8 @@ export class NormalStep implements StepService {
 	}
 
 	async run(ticket: Ticket, contentFromWpp: string) {
-		const step = await this.model
-			.findOne<Step>({
-				stepNumber: ticket.currentStep,
-			})
-			.lean();
+		console.log(ticket);
+		const step = await this.findStep(ticket.currentStep);
 
 		if (step.isFirstStep) {
 			await this.startPrompt();
@@ -78,6 +75,24 @@ export class NormalStep implements StepService {
 				}
 			);
 		}
+	}
+
+	private async findStep(currentStep: number) {
+		const step = await this.model
+			.findOne<Step>({
+				stepNumber: currentStep,
+			})
+			.lean();
+
+		if (!step) {
+			throw {
+				statusCode: 404,
+				body: {
+					message: "Step not found.",
+				},
+			};
+		}
+		return step;
 	}
 }
 
