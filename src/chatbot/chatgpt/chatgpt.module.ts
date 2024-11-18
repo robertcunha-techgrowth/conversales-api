@@ -29,8 +29,20 @@ export const ChatGptProvider = new ClassProvider({
 	useClass: ChatGpt,
 });
 
+export const AssistantIdProvider = new FactoryProvider({
+	provide: "AssistantId",
+	useFactory: () => {
+		return process.env.ASSISTANT_ID;
+	},
+});
+
 @ModuleHandler({
-	providers: [ChatGptModelProvider, OpenAIProvider, ChatGptProvider],
+	providers: [
+		ChatGptModelProvider,
+		OpenAIProvider,
+		ChatGptProvider,
+		AssistantIdProvider,
+	],
 	exports: [ChatGptProvider],
 })
 export class ChatGptModule {}
