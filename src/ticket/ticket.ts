@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import OpenAI from "openai";
-import { Product } from "../product/product.entity";
+import { Product, ProductSchema } from "../product/product.entity";
 import { Schema } from "../common/database/schema.decorator";
 import { SchemaFactory } from "../common/database/schema.factory";
 import { Prop } from "../common/database/prop.decorator";
+import { ChatBotHistory } from "../chatbot/chatbot";
 
 export enum StatusTicket {
 	Active = "ACTIVE",
@@ -37,30 +38,17 @@ export class Ticket {
 
 	@Prop({
 		type: [Object],
-		default: (): OpenAI.Chat.Completions.ChatCompletionMessageParam[] => {
+		default: (): ChatBotHistory[] => {
 			return [];
 		},
 	})
-	history?: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
+	history?: ChatBotHistory[];
 
 	@Prop({
 		type: String,
 		required: true,
 	})
 	from: string;
-
-	@Prop({
-		type: Boolean,
-		default: () => true,
-	})
-	isFirstStep?: boolean;
-
-	@Prop({
-		type: Boolean,
-		required: false,
-		default: () => false,
-	})
-	isFinalStep?: boolean;
 
 	@Prop({
 		type: Number,
@@ -104,6 +92,12 @@ export class Ticket {
 		required: true,
 	})
 	channel: string;
+
+	@Prop({
+		type: ProductSchema,
+		ref: Product.name,
+	})
+	cart?: Product[];
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);
