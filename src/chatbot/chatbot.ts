@@ -4,9 +4,11 @@ export interface ChatBotResponse {
 	statusCode: number;
 	message?: string;
 }
+
+export interface ChatBotHistory {
+	role: string;
+	content: string;
+}
 export interface ChatBot {
-	sendMessage(
-		message: string,
-		history: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
-	): Promise<string>;
+	sendMessage(message: string): Promise<string>;
 }
