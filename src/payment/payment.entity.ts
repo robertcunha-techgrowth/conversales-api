@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { SchemaFactory } from "../common/database/schema.factory";
-import { Ticket } from "../ticket/ticket";
+import { Ticket } from "../ticket/ticket.entity";
 import { Prop } from "../common/database/prop.decorator";
 import { Schema } from "../common/database/schema.decorator";
 
