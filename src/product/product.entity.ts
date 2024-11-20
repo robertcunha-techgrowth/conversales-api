@@ -20,16 +20,21 @@ export class Product {
 	name: string;
 
 	@Prop({
-		type: String,
+		type: Number,
 		required: true,
 	})
-	price: string;
+	price: number;
 
 	@Prop({
 		type: String,
 		required: true,
 	})
 	description: string;
+
+	@Prop({
+		type: Number,
+	})
+	num: number;
 }
 
 export const ProductSchema = SchemaFactory.createFromClass(Product);
