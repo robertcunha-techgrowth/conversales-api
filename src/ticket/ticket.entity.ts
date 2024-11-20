@@ -13,6 +13,27 @@ export enum StatusTicket {
 }
 
 @Schema({
+	_id: false,
+})
+export class UserOnTicket {
+	@Prop({
+		type: String,
+		default: null,
+	})
+	name?: string;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	nationalId?: string;
+
+	[key: string]: any;
+}
+
+const UserOnTicketSchema = SchemaFactory.createFromClass(UserOnTicket);
+
+@Schema({
 	timestamps: true,
 })
 export class Ticket {
@@ -85,7 +106,13 @@ export class Ticket {
 		required: false,
 		ref: Product.name,
 	})
-	product?: Product[];
+	products?: mongoose.Types.ObjectId | Product[];
+
+	@Prop({
+		type: ProductSchema,
+		ref: Product.name,
+	})
+	cart?: Product[];
 
 	@Prop({
 		type: String,
@@ -94,10 +121,12 @@ export class Ticket {
 	channel: string;
 
 	@Prop({
-		type: ProductSchema,
-		ref: Product.name,
+		type: UserOnTicketSchema,
+		default: () => {
+			return {};
+		},
 	})
-	cart?: Product[];
+	user?: UserOnTicket;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);
