@@ -109,8 +109,11 @@ export class Ticket {
 	products?: mongoose.Types.ObjectId | Product[];
 
 	@Prop({
-		type: ProductSchema,
+		type: [ProductSchema],
 		ref: Product.name,
+		default: (): Product[] => {
+			return [];
+		},
 	})
 	cart?: Product[];
 
