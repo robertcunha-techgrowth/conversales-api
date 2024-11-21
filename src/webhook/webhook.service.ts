@@ -1,5 +1,5 @@
 import { Model } from "mongoose";
-import { StatusTicket, Ticket } from "../ticket/ticket";
+import { StatusTicket, Ticket } from "../ticket/ticket.entity";
 import { StepService } from "../step/step.service";
 
 export interface WebhookData {}
@@ -9,7 +9,7 @@ export abstract class WebhookService {
 
 	constructor(
 		protected readonly ticketModel: Model<Ticket>,
-		protected readonly stepService: StepService,
+		protected readonly steps: Record<string, StepService>,
 		channelId: string
 	) {
 		this.channelId = channelId;
@@ -20,10 +20,20 @@ export abstract class WebhookService {
 	protected async getTicket(from: string): Promise<Ticket> {
 		const documentId = `${this.channelId}:${from}`;
 		console.log(`Getting ticket for ${documentId}`);
-		const ticket = await this.ticketModel.findOne({
-			documentId,
-			status: StatusTicket.Active,
-		});
+		const ticket = await this.ticketModel
+			.findOne(
+				{
+					documentId,
+					status: StatusTicket.Active,
+				},
+				null
+				// {
+				// 	populate: {
+				// 		path: "cart",
+				// 	},
+				// }
+			)
+			.lean();
 		if (!ticket) {
 			const newTicket = await this.ticketModel.create({
 				documentId,

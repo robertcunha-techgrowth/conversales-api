@@ -21,6 +21,13 @@ export class StepTexts {
 
 export const StepTextsSchema = SchemaFactory.createFromClass(StepTexts);
 
+export enum StepKind {
+	COLLECT_DATA_STEP = "COLLECT_DATA_STEP",
+	INTRO_STEP = "INTRO_STEP",
+	LIST_PRODUCTS_STEP = "LIST_PRODUCTS_STEP",
+	SELECTED_PRODUCT_STEP = "SELECTED_PRODUCT_STEP",
+	CHECKOUT_STEP = "CHECKOUT_STEP",
+}
 @Schema({
 	timestamps: true,
 })
@@ -55,6 +62,35 @@ export class Step {
 		required: true,
 	})
 	isFinalStep: boolean;
+
+	@Prop({
+		type: Number,
+		default: null,
+	})
+	conditionalToFinish?: number;
+
+	@Prop({
+		type: String,
+	})
+	userProperty?: string;
+
+	@Prop({
+		type: Number,
+		default: null,
+	})
+	stepReturn?: number;
+
+	@Prop({
+		type: String,
+		required: true,
+	})
+	kind: StepKind;
+
+	@Prop({
+		type: Number,
+		default: null,
+	})
+	nextStep?: number;
 }
 
 export const StepSchema = SchemaFactory.createFromClass(Step);

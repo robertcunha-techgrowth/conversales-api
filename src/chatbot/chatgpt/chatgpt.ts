@@ -13,7 +13,6 @@ export enum ChatGptRoles {
 @Injectable()
 export class ChatGpt implements ChatBot {
 	constructor(
-		@Inject("ChatGptModel") private readonly chatgptModel: string,
 		@Inject("OpenAI") private readonly openai: OpenAI,
 		@Inject("AssistantId") private readonly assistantId: string
 	) {}

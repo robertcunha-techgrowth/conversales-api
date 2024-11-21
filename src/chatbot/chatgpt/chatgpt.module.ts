@@ -6,14 +6,6 @@ import {
 } from "../../common/dependency-injection/provider";
 import { ChatGpt } from "./chatgpt";
 
-export const ChatGptModelProvider = new FactoryProvider({
-	provide: "ChatGptModel",
-	useFactory: () => {
-		// toDo: return model using ssm
-		return process.env.GPT_MODEL;
-	},
-});
-
 export const OpenAIProvider = new FactoryProvider({
 	provide: "OpenAI",
 	useFactory: () => {
@@ -37,12 +29,7 @@ export const AssistantIdProvider = new FactoryProvider({
 });
 
 @ModuleHandler({
-	providers: [
-		ChatGptModelProvider,
-		OpenAIProvider,
-		ChatGptProvider,
-		AssistantIdProvider,
-	],
+	providers: [OpenAIProvider, ChatGptProvider, AssistantIdProvider],
 	exports: [ChatGptProvider],
 })
 export class ChatGptModule {}

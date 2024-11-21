@@ -1,8 +1,13 @@
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
-import { StepService } from "../step/step.service";
-import { Ticket } from "../ticket/ticket";
+import {
+	IntroStep,
+	ListProductsStep,
+	SelectedProductStep,
+	StepService,
+} from "../step/step.service";
+import { Ticket } from "../ticket/ticket.entity";
 import { WebhookData, WebhookService } from "./webhook.service";
 
 export interface WebhookWhatsappData extends WebhookData {
@@ -54,9 +59,19 @@ export interface TicketMessage {
 export class WebhookWhatsappService extends WebhookService {
 	constructor(
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
-		@Inject("StepService") stepService: StepService
+		@Inject(IntroStep.name) normalStep: StepService,
+		@Inject(ListProductsStep.name) listProductsStep: StepService,
+		@Inject(SelectedProductStep.name) selectedProductStep: StepService
 	) {
-		super(ticketModel, stepService, "WHATSAPP");
+		super(
+			ticketModel,
+			{
+				"1": normalStep,
+				"2": listProductsStep,
+				"3": selectedProductStep,
+			},
+			"WHATSAPP"
+		);
 	}
 
 	async webhook(data: WebhookWhatsappData) {
@@ -70,7 +85,7 @@ export class WebhookWhatsappService extends WebhookService {
 
 		const ticketAndMessage = await Promise.all(promisesTicketWithMessage);
 		const runPromises = ticketAndMessage.map(({ ticket, message }) => {
-			return this.stepService.run(ticket, message);
+			return this.steps[ticket.currentStep].run(ticket, message);
 		});
 		await Promise.all(runPromises);
 	}

@@ -14,7 +14,7 @@ const ProductModelProvider = new FactoryProvider({
 });
 
 const ProductServiceProvider = new ClassProvider({
-	provide: "ProductService",
+	provide: ProductService.name,
 	useClass: ProductService,
 });
 
