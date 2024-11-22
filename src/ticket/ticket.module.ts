@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ModuleHandler } from "../common/dependency-injection/module";
 import { FactoryProvider } from "../common/dependency-injection/provider";
-import { Ticket, TicketSchema } from "./ticket";
+import { Ticket, TicketSchema } from "./ticket.entity";
 
 const TicketModelProvider = new FactoryProvider({
 	provide: "TicketModel",

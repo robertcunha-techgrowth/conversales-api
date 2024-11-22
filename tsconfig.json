@@ -1,16 +1,19 @@
 {
 	"compilerOptions": {
-		"target": "ES2020",
+		"target": "ES2022",
 		"module": "CommonJS",
 		"moduleResolution": "node",
-		"lib": ["ES2020"],
+		"lib": ["ES2022"],
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"outDir": ".build", // Adjust to match your build output
 		"rootDir": "./",
 		"experimentalDecorators": true,
-		"strictNullChecks": false
+		"strictNullChecks": false,
+		"emitDecoratorMetadata": true,
+		"sourceMap": true,
+		"noImplicitOverride": true
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules"]

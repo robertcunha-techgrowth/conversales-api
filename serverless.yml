@@ -32,7 +32,12 @@ functions:
           method: post
   webhook-telegram:
     handler: src/webhook/index.telegram
+    timeout: 30
     events:
       - httpApi:
           path: /webhook/telegram
           method: post
+
+package:
+  include:
+    - certifies/** # Inclui todos os arquivos na pasta `assets`

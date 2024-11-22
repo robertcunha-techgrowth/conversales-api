@@ -1,7 +1,9 @@
 import { AxiosInstance } from "axios";
 import { Inject } from "../../common/dependency-injection/inject";
 import { Channel } from "../channel";
+import { Injectable } from "../../common/dependency-injection/injectable";
 
+@Injectable()
 export class TelegramChannel implements Channel {
 	constructor(
 		@Inject("TelegramAxios") private readonly instance: AxiosInstance

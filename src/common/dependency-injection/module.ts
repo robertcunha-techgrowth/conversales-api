@@ -1,4 +1,5 @@
 // import { ControllerProvider } from "./controller-provider";
+import { MongooseModule } from "../database/mongoose.module";
 import { globalTarget } from "./global-target";
 import { ModuleMetadata } from "./module-metadata";
 import { BaseServiceProvider } from "./provider";
@@ -80,7 +81,5 @@ export const ModuleHandler = (
 		);
 
 		setExports(target.name, exports ?? []);
-
-		// (target as any).
 	};
 };

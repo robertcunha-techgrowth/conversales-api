@@ -1,9 +1,18 @@
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
-import { StepService } from "../step/step.service";
-import { Ticket } from "../ticket/ticket";
+import {
+	IntroStep,
+	StepService,
+	CollectData,
+	CheckoutStep,
+	ConfirmStep,
+	ListProductsStep,
+	SelectedProductStep,
+} from "../step/step.service";
+import { Ticket } from "../ticket/ticket.entity";
 import { WebhookData, WebhookService } from "./webhook.service";
+import { Step } from "../step/step.entity";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
@@ -15,6 +24,9 @@ export interface WebhookTelegramData extends WebhookData {
 			username: string;
 		};
 		text: string;
+		chat: {
+			id: string;
+		};
 	};
 }
 
@@ -22,20 +34,52 @@ export interface WebhookTelegramData extends WebhookData {
 export class WebhookTelegramService extends WebhookService {
 	constructor(
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
-		@Inject("StepService") stepService: StepService
+		@Inject(IntroStep.name) normalStep: StepService,
+		@Inject(ListProductsStep.name) listProductsStep: StepService,
+		@Inject(SelectedProductStep.name) selectedProductStep: StepService,
+		@Inject(CollectData.name) collectDataStep: StepService,
+		@Inject(CheckoutStep.name) checkoutStep: StepService,
+		@Inject(ConfirmStep.name) confirmStep: StepService,
+		@Inject("StepModel") private readonly stepModel: Model<Step>
 	) {
-		super(ticketModel, stepService, "TELEGRAM");
+		super(
+			ticketModel,
+			{
+				INTRO_STEP: normalStep,
+				LIST_PRODUCTS_STEP: listProductsStep,
+				SELECT_PRODUCT_STEP: selectedProductStep,
+				COLLECT_DATA_STEP: collectDataStep,
+				CHECKOUT_STEP: checkoutStep,
+				CONFIRM_STEP: confirmStep,
+			},
+			"TELEGRAM"
+		);
 	}
 
 	async webhook(data: WebhookTelegramData) {
 		const { text } = data.message;
 
-		const { id } = data.message.from;
+		// const { id } = data.message.from;
 
-		console.log(`Received message from ${id}`);
+		// console.log(`Received message from ${id}`);
+
+		const { id } = data.message.chat;
 
 		const ticket = await this.getTicket(id.toString());
 
-		return this.stepService.run(ticket, text);
+		const step = await this.stepModel
+			.findOne({
+				stepNumber: ticket.currentStep,
+			})
+			.lean();
+
+		if (!step) {
+			throw {
+				statusCode: 404,
+				message: "Step not found",
+			};
+		}
+
+		return this.steps[step.kind].run(ticket, text);
 	}
 }

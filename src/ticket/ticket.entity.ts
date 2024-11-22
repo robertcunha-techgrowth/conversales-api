@@ -1,15 +1,37 @@
 import mongoose from "mongoose";
 import OpenAI from "openai";
-import { Product } from "../product/product.entity";
+import { Product, ProductSchema } from "../product/product.entity";
 import { Schema } from "../common/database/schema.decorator";
 import { SchemaFactory } from "../common/database/schema.factory";
 import { Prop } from "../common/database/prop.decorator";
+import { ChatBotHistory } from "../chatbot/chatbot";
 
 export enum StatusTicket {
 	Active = "ACTIVE",
 	Buyed = "BUYED",
 	Closed = "CLOSED",
 }
+
+@Schema({
+	_id: false,
+})
+export class UserOnTicket {
+	@Prop({
+		type: String,
+		default: null,
+	})
+	name?: string;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	nationalId?: string;
+
+	[key: string]: any;
+}
+
+const UserOnTicketSchema = SchemaFactory.createFromClass(UserOnTicket);
 
 @Schema({
 	timestamps: true,
@@ -20,9 +42,8 @@ export class Ticket {
 		default: () => {
 			return new mongoose.Types.ObjectId();
 		},
-		required: true,
 	})
-	_id: mongoose.Types.ObjectId;
+	_id?: mongoose.Types.ObjectId;
 
 	@Prop({
 		type: String,
@@ -31,38 +52,24 @@ export class Ticket {
 	documentId: string;
 
 	@Prop({
-		type: StatusTicket,
+		type: String,
 		required: true,
 	})
 	status: StatusTicket;
 
 	@Prop({
-		type: String,
-		required: true,
-		default: (): OpenAI.Chat.Completions.ChatCompletionMessageParam[] => {
+		type: [Object],
+		default: (): ChatBotHistory[] => {
 			return [];
 		},
 	})
-	history: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
+	history?: ChatBotHistory[];
 
 	@Prop({
 		type: String,
 		required: true,
 	})
-	userPhone: string;
-
-	@Prop({
-		type: Boolean,
-		default: () => true,
-	})
-	isFirstStep?: boolean;
-
-	@Prop({
-		type: Boolean,
-		required: false,
-		default: () => false,
-	})
-	isFinalStep?: boolean;
+	from: string;
 
 	@Prop({
 		type: Number,
@@ -72,9 +79,9 @@ export class Ticket {
 
 	@Prop({
 		type: Number,
-		required: true,
+		default: () => 10,
 	})
-	retryCount: number;
+	retryCount?: number;
 
 	@Prop({
 		type: Boolean,
@@ -95,16 +102,34 @@ export class Ticket {
 	email?: string;
 
 	@Prop({
-		type: [Product],
+		type: [mongoose.Types.ObjectId],
 		required: false,
+		ref: Product.name,
 	})
-	product?: Product[];
+	products?: mongoose.Types.ObjectId | Product[];
+
+	@Prop({
+		type: [ProductSchema],
+		ref: Product.name,
+		default: (): Product[] => {
+			return [];
+		},
+	})
+	cart?: Product[];
 
 	@Prop({
 		type: String,
 		required: true,
 	})
 	channel: string;
+
+	@Prop({
+		type: UserOnTicketSchema,
+		default: () => {
+			return {};
+		},
+	})
+	user?: UserOnTicket;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);

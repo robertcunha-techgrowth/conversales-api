@@ -1,9 +1,18 @@
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
-import { StepService } from "../step/step.service";
-import { Ticket, StatusTicket } from "../ticket/ticket";
+import {
+	CheckoutStep,
+	CollectData,
+	ConfirmStep,
+	IntroStep,
+	ListProductsStep,
+	SelectedProductStep,
+	StepService,
+} from "../step/step.service";
+import { Ticket } from "../ticket/ticket.entity";
 import { WebhookData, WebhookService } from "./webhook.service";
+import { Step } from "../step/step.entity";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
@@ -54,9 +63,26 @@ export interface TicketMessage {
 export class WebhookWhatsappService extends WebhookService {
 	constructor(
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
-		@Inject("StepService") stepService: StepService
+		@Inject(IntroStep.name) normalStep: StepService,
+		@Inject(ListProductsStep.name) listProductsStep: StepService,
+		@Inject(SelectedProductStep.name) selectedProductStep: StepService,
+		@Inject(CollectData.name) collectDataStep: StepService,
+		@Inject(CheckoutStep.name) checkoutStep: StepService,
+		@Inject(ConfirmStep.name) confirmStep: StepService,
+		@Inject("StepModel") private readonly stepModel: Model<Step>
 	) {
-		super(ticketModel, stepService, "WHATSAPP");
+		super(
+			ticketModel,
+			{
+				INTRO_STEP: normalStep,
+				LIST_PRODUCTS_STEP: listProductsStep,
+				SELECT_PRODUCT_STEP: selectedProductStep,
+				COLLECT_DATA_STEP: collectDataStep,
+				CHECKOUT_STEP: checkoutStep,
+				CONFIRM_STEP: confirmStep,
+			},
+			"WHATSAPP"
+		);
 	}
 
 	async webhook(data: WebhookWhatsappData) {
@@ -70,7 +96,7 @@ export class WebhookWhatsappService extends WebhookService {
 
 		const ticketAndMessage = await Promise.all(promisesTicketWithMessage);
 		const runPromises = ticketAndMessage.map(({ ticket, message }) => {
-			return this.stepService.run(ticket, message);
+			return this.steps[ticket.currentStep].run(ticket, message);
 		});
 		await Promise.all(runPromises);
 	}
