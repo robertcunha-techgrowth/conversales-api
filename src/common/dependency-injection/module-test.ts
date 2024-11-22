@@ -1,6 +1,5 @@
 import { ModuleHandlerOptions } from "./module";
 import { ModuleMetadata } from "./module-metadata";
-import { BaseServiceProvider } from "./provider";
 
 export class ModuleHandlerTest {
 	private moduleMetadata: ModuleMetadata;

@@ -18,32 +18,13 @@ export class WebhookHandler {
 	@TelegramApiGuard()
 	async telegram(event: any) {
 		// toDo: this connection must be performed by module
-		await MongooseModule.forRoot(process.env.MONGO_URI);
-		try {
-			const body = JSON.parse(event.body);
-			await this.webhookTelegram.webhook(body);
-			await MongooseModule.finish();
-			return {
-				statusCode: 200,
-				message: "Go Serverless v3.0! Your function executed successfully!",
-			};
-		} catch (err: any) {
-			console.log(err);
-
-			await MongooseModule.finish();
-
-			const status = err.statusCode ?? 500;
-
-			return {
-				statusCode: status,
-				headers: { "Content-Type": "application/json" },
-				body: {
-					message: err.message,
-					statusCode: status,
-					status,
-				},
-			};
-		}
+		// await MongooseModule.forRoot(process.env.MONGO_URI);
+		const body = JSON.parse(event.body);
+		await this.webhookTelegram.webhook(body);
+		return {
+			statusCode: 200,
+			message: "Go Serverless v3.0! Your function executed successfully!",
+		};
 	}
 
 	async whatsapp(event: any) {

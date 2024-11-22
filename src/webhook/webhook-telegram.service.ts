@@ -73,6 +73,13 @@ export class WebhookTelegramService extends WebhookService {
 			})
 			.lean();
 
+		if (!step) {
+			throw {
+				statusCode: 404,
+				message: "Step not found",
+			};
+		}
+
 		return this.steps[step.kind].run(ticket, text);
 	}
 }

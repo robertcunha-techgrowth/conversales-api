@@ -10,8 +10,6 @@ import { Injectable } from "../common/dependency-injection/injectable";
 import { Product } from "../product/product.entity";
 
 export abstract class StepService {
-	// protected routines: Record<string, Function>;
-
 	constructor(
 		private readonly model: Model<Step>,
 		private readonly chatbot: ChatBot,
@@ -20,10 +18,6 @@ export abstract class StepService {
 	) {}
 
 	abstract run(ticket: Ticket, contentFromWpp: string): Promise<void>;
-
-	// protected abstract success(ticket: Ticket, step: Step): Promise<void>;
-
-	// protected abstract fail(ticket: Ticket, step: Step): Promise<void>;
 
 	protected async findStep(currentStep: number): Promise<Step> {
 		const step = await this.model
@@ -100,11 +94,12 @@ export abstract class StepService {
 @Injectable()
 export class ListProductsStep extends StepService {
 	constructor(
+		@Inject(ProductService.name)
+		private readonly productService: ProductService,
 		@Inject("StepModel") model: Model<Step>,
 		@Inject("Chatbot") chatbot: ChatBot,
 		@Inject("Channel") channel: Channel,
-		@Inject("TicketModel") ticketModel: Model<Ticket>,
-		@Inject(ProductService.name) private readonly productService: ProductService
+		@Inject("TicketModel") ticketModel: Model<Ticket>
 	) {
 		super(model, chatbot, channel, ticketModel);
 	}
@@ -124,8 +119,8 @@ export class ListProductsStep extends StepService {
 		}
 
 		const routines = {
-			"200": this.success,
-			"400": this.fail,
+			"200": this.success.bind(this),
+			"400": this.fail.bind(this),
 		};
 
 		return routines[statusCode.toString() as "200" | "400"](ticket, step);
@@ -144,6 +139,7 @@ export class ListProductsStep extends StepService {
 			ticket.from,
 			`${stepBaseText}\n${productsText}`
 		);
+
 		await this.ticketModel.findOneAndUpdate(
 			{
 				_id: ticket._id,
@@ -203,7 +199,7 @@ export class SelectedProductStep extends StepService {
 
 		ticket.cart.push(product);
 
-		const checkoutText = `${product.name}\n💰: ${product.price.toFixed(2)}\n ${
+		const checkoutText = `${product.name}\nR$ ${product.price.toFixed(2)}\n ${
 			product.description
 		}`;
 
@@ -376,8 +372,7 @@ export class ConfirmStep extends StepService {
 	async run(ticket: Ticket, contentFromWpp: string): Promise<void> {
 		enum ConfirmStepEnum {
 			YES = "1",
-			BACK_STEP = "2",
-			FINISH_CONTACT = "3",
+			FINISH_CONTACT = "2",
 		}
 		const step = await this.findStep(ticket.currentStep);
 
@@ -387,9 +382,7 @@ export class ConfirmStep extends StepService {
 			step.rule
 		);
 
-		if (message === ConfirmStepEnum.BACK_STEP) {
-			await this.backToProducts(ticket, step.stepReturn);
-		} else if (message === ConfirmStepEnum.FINISH_CONTACT) {
+		if (message === ConfirmStepEnum.FINISH_CONTACT) {
 			await this.finishTicket(ticket);
 		} else if (message === ConfirmStepEnum.YES) {
 			const cartValue = ticket.cart.reduce((acc, product) => {
@@ -423,30 +416,35 @@ export class ConfirmStep extends StepService {
 		}
 	}
 
-	private async backToProducts(ticket: Ticket, stepToReturn: number) {
-		await this.channel.sendMessage(
-			ticket.from,
-			`Voltando para a lista de produtos.`
-		);
+	// private async backToProducts(ticket: Ticket, stepToReturn: number) {
+	// 	await this.channel.sendMessage(
+	// 		ticket.from,
+	// 		`Voltando para a lista de produtos.`
+	// 	);
 
-		const { products } = ticket;
+	// 	const { products } = ticket;
 
-		const productsText = (products as Product[])
-			.map((product) => {
-				return `${product.num}: ${product.name}`;
-			})
-			.join("\n");
+	// 	const productsText = (products as Product[])
+	// 		.map((product) => {
+	// 			return `${product.num}: ${product.name}`;
+	// 		})
+	// 		.join("\n");
 
-		await this.ticketModel.findOneAndUpdate(
-			{
-				_id: ticket._id,
-			},
-			{
-				history: ticket.history,
-				step: stepToReturn,
-			}
-		);
+	// 	await this.ticketModel.findOneAndUpdate(
+	// 		{
+	// 			_id: ticket._id,
+	// 		},
+	// 		{
+	// 			history: ticket.history,
+	// 			step: stepToReturn,
+	// 		},
+	// 		{
+	// 			populate: {
+	// 				path: "products",
+	// 			},
+	// 		}
+	// 	);
 
-		await this.channel.sendMessage(ticket.from, `${productsText}`);
-	}
+	// 	await this.channel.sendMessage(ticket.from, `${productsText}`);
+	// }
 }

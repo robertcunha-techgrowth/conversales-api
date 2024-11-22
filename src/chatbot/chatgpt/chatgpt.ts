@@ -1,8 +1,7 @@
 import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/resources";
 import { Injectable } from "../../common/dependency-injection/injectable";
 import { Inject } from "../../common/dependency-injection/inject";
-import { ChatBot, ChatBotHistory, ChatBotResponse } from "../chatbot";
+import { ChatBot } from "../chatbot";
 
 export enum ChatGptRoles {
 	User = "user",
