@@ -148,7 +148,7 @@ describe("WebhookHandler", () => {
 				},
 				isFirstStep: false,
 				isFinalStep: false,
-				kind: StepKind.INTRO_STEP,
+				kind: StepKind.GREETING,
 			};
 			await stepModel.create(step);
 			// Arrange
@@ -247,7 +247,7 @@ describe("WebhookHandler", () => {
 				},
 				isFirstStep: false,
 				isFinalStep: false,
-				kind: StepKind.LIST_PRODUCTS_STEP,
+				kind: StepKind.LIST_PRODUCTS,
 			};
 			await stepModel.create(step);
 			// Arrange
