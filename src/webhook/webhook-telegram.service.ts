@@ -1,18 +1,17 @@
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
-import {
-	IntroStep,
-	StepService,
-	CollectData,
-	CheckoutStep,
-	ConfirmStep,
-	ListProductsStep,
-	SelectedProductStep,
-} from "../step/step.service";
 import { Ticket } from "../ticket/ticket.entity";
 import { WebhookData, WebhookService } from "./webhook.service";
 import { Step } from "../step/step.entity";
+import { ChatBot, OutputTaskInterpretation } from "../chatbot/chatbot";
+import { Channel } from "../channel/channel";
+import { IntroStep } from "../step/introduction-step";
+import { ListProductsStep } from "../step/list-product-step";
+import { StepService } from "../step/step.service";
+import { AddProductStep } from "../step/add-product-step";
+import { SetPropertyStep } from "../step/set-property-step";
+import { CheckoutStep } from "../step/checkout-step";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
@@ -36,50 +35,70 @@ export class WebhookTelegramService extends WebhookService {
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
 		@Inject(IntroStep.name) normalStep: StepService,
 		@Inject(ListProductsStep.name) listProductsStep: StepService,
-		@Inject(SelectedProductStep.name) selectedProductStep: StepService,
-		@Inject(CollectData.name) collectDataStep: StepService,
+		@Inject(AddProductStep.name) addProduct: StepService,
+		@Inject(SetPropertyStep.name) setProperty: StepService,
 		@Inject(CheckoutStep.name) checkoutStep: StepService,
-		@Inject(ConfirmStep.name) confirmStep: StepService,
-		@Inject("StepModel") private readonly stepModel: Model<Step>
+		// @Inject("StepModel") private readonly stepModel: Model<Step>,
+		@Inject("Chatbot") private readonly chatbot: ChatBot,
+		@Inject("Channel") private readonly channel: Channel
 	) {
 		super(
 			ticketModel,
 			{
-				INTRO_STEP: normalStep,
-				LIST_PRODUCTS_STEP: listProductsStep,
-				SELECT_PRODUCT_STEP: selectedProductStep,
-				COLLECT_DATA_STEP: collectDataStep,
-				CHECKOUT_STEP: checkoutStep,
-				CONFIRM_STEP: confirmStep,
+				GREETING: normalStep,
+				LIST_PRODUCTS: listProductsStep,
+				ADD_PRODUCT: addProduct,
+				SET_PROPERTY: setProperty,
+				CHECKOUT: checkoutStep,
 			},
 			"TELEGRAM"
 		);
 	}
 
-	async webhook(data: WebhookTelegramData) {
+	override async webhook(data: WebhookTelegramData) {
 		const { text } = data.message;
-
-		// const { id } = data.message.from;
-
-		// console.log(`Received message from ${id}`);
 
 		const { id } = data.message.chat;
 
 		const ticket = await this.getTicket(id.toString());
-
-		const step = await this.stepModel
-			.findOne({
-				stepNumber: ticket.currentStep,
-			})
-			.lean();
-
-		if (!step) {
-			throw {
-				statusCode: 404,
-				message: "Step not found",
+		try {
+			const itemToInterpreate = {
+				message: text,
+				task: "INTERPRETATE",
+				previousStep: ticket.previousStep,
 			};
-		}
+			const { step, params } = await this.chatbot.interpretateMessage(
+				JSON.stringify(itemToInterpreate)
+			);
 
-		return this.steps[step.kind].run(ticket, text);
+			await this.ticketModel.findOneAndUpdate(
+				{
+					_id: ticket._id,
+				},
+				{
+					previousStep: step,
+				}
+			);
+
+			console.log(`Step: ${step}\nParams: ${params}`);
+
+			const inputParams: OutputTaskInterpretation = await this.steps[step].run(
+				ticket,
+				params
+			);
+
+			const { message } = await this.chatbot.getMessage(inputParams, step);
+
+			await this.channel.sendMessage(ticket.from, message);
+
+			return ticket;
+		} catch (err) {
+			console.log(err);
+
+			await this.channel.sendMessage(
+				ticket.from,
+				"Desculpe, não entendi o que você quis dizer"
+			);
+		}
 	}
 }

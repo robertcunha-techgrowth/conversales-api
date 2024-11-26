@@ -1,18 +1,16 @@
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
-import {
-	CheckoutStep,
-	CollectData,
-	ConfirmStep,
-	IntroStep,
-	ListProductsStep,
-	SelectedProductStep,
-	StepService,
-} from "../step/step.service";
+import { StepService } from "../step/step.service";
 import { Ticket } from "../ticket/ticket.entity";
 import { WebhookData, WebhookService } from "./webhook.service";
 import { Step } from "../step/step.entity";
+import { Channel } from "../channel/channel";
+import { ChatBot } from "../chatbot/chatbot";
+import { AddProductStep } from "../step/add-product-step";
+import { IntroStep } from "../step/introduction-step";
+import { ListProductsStep } from "../step/list-product-step";
+import { SetPropertyStep } from "../step/set-property-step";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
@@ -65,31 +63,30 @@ export class WebhookWhatsappService extends WebhookService {
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
 		@Inject(IntroStep.name) normalStep: StepService,
 		@Inject(ListProductsStep.name) listProductsStep: StepService,
-		@Inject(SelectedProductStep.name) selectedProductStep: StepService,
-		@Inject(CollectData.name) collectDataStep: StepService,
-		@Inject(CheckoutStep.name) checkoutStep: StepService,
-		@Inject(ConfirmStep.name) confirmStep: StepService,
-		@Inject("StepModel") private readonly stepModel: Model<Step>
+		@Inject(AddProductStep.name) addProduct: StepService,
+		@Inject(SetPropertyStep.name) setProperty: StepService
+		// @Inject("StepModel") private readonly stepModel: Model<Step>,
+		// @Inject("Chatbot") private readonly chatbot: ChatBot,
+		// @Inject("Channel") private readonly channel: Channel
 	) {
 		super(
 			ticketModel,
 			{
-				INTRO_STEP: normalStep,
-				LIST_PRODUCTS_STEP: listProductsStep,
-				SELECT_PRODUCT_STEP: selectedProductStep,
-				COLLECT_DATA_STEP: collectDataStep,
-				CHECKOUT_STEP: checkoutStep,
-				CONFIRM_STEP: confirmStep,
+				GREETING: normalStep,
+				LIST_PRODUCTS: listProductsStep,
+				ADD_PRODUCT: addProduct,
+				SET_PROPERTY: setProperty,
 			},
 			"WHATSAPP"
 		);
 	}
 
-	async webhook(data: WebhookWhatsappData) {
+	override async webhook(data: WebhookWhatsappData) {
 		const messages = data.entry
 			.map((entry) => entry.changes.map((change) => change.value.messages))
 			.flat()
 			.flat();
+
 		const promisesTicketWithMessage = messages.map((message) =>
 			this.setTicketForMessage(message.from, message.text.body)
 		);
@@ -98,7 +95,12 @@ export class WebhookWhatsappService extends WebhookService {
 		const runPromises = ticketAndMessage.map(({ ticket, message }) => {
 			return this.steps[ticket.currentStep].run(ticket, message);
 		});
+
 		await Promise.all(runPromises);
+
+		// toDo: this is shit return
+		// change it after define better what the fuck we should return
+		return ticketAndMessage[0].ticket;
 	}
 
 	private async setTicketForMessage(

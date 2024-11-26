@@ -15,24 +15,16 @@ export abstract class WebhookService {
 		this.channelId = channelId;
 	}
 
-	abstract webhook(data: WebhookData): Promise<void>;
+	abstract webhook(data: WebhookData): Promise<Ticket>;
 
 	protected async getTicket(from: string): Promise<Ticket> {
 		const documentId = `${this.channelId}:${from}`;
 		console.log(`Getting ticket for ${documentId}`);
 		const ticket = await this.ticketModel
-			.findOne(
-				{
-					documentId,
-					status: StatusTicket.Active,
-				},
-				null
-				// {
-				// 	populate: {
-				// 		path: "cart",
-				// 	},
-				// }
-			)
+			.findOne({
+				documentId,
+				status: StatusTicket.Active,
+			})
 			.lean();
 		if (!ticket) {
 			const newTicket = await this.ticketModel.create({
