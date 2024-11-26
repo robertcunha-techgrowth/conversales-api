@@ -6,6 +6,8 @@ import { WebhookWhatsappService } from "./webhook-whatsapp.service";
 import { WebhookTelegramService } from "./webhook-telegram.service";
 import { StepModule } from "../step/step.module";
 import { ProductModule } from "../product/product.module";
+import { ChatGptModule } from "../chatbot/chatgpt/chatgpt.module";
+import { TelegramModule } from "../channel/telegram/telegram.module";
 const WebhookControllerProvider = new ClassProvider({
 	provide: "WebhookHandler",
 	useClass: WebhookHandler,
@@ -22,7 +24,13 @@ const WebhookTelegramServiceProvider = new ClassProvider({
 });
 
 @ModuleHandler({
-	imports: [TicketModule, StepModule, ProductModule],
+	imports: [
+		TicketModule,
+		StepModule,
+		ProductModule,
+		ChatGptModule,
+		TelegramModule,
+	],
 	// controllers: [WebhookControllerProvider],
 	providers: [
 		WebhookWhatsappServiceProvider,
