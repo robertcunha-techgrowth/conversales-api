@@ -1,7 +1,12 @@
 import OpenAI from "openai";
 import { Injectable } from "../../common/dependency-injection/injectable";
 import { Inject } from "../../common/dependency-injection/inject";
-import { ChatBot } from "../chatbot";
+import {
+	ChatBot,
+	InterpretateMessageResponse,
+	OutputTaskInterpretation,
+	GetMessageResponse,
+} from "../chatbot";
 
 export enum ChatGptRoles {
 	User = "user",
@@ -15,6 +20,29 @@ export class ChatGpt implements ChatBot {
 		@Inject("OpenAI") private readonly openai: OpenAI,
 		@Inject("AssistantId") private readonly assistantId: string
 	) {}
+
+	async getMessage(
+		inputParams: OutputTaskInterpretation,
+		step: string
+	): Promise<GetMessageResponse> {
+		const response = await this.sendMessage(
+			JSON.stringify({
+				step,
+				params: inputParams,
+			})
+		);
+		const data = (response as any).text.value;
+		return JSON.parse(data);
+	}
+
+	async interpretateMessage(
+		message: string
+	): Promise<InterpretateMessageResponse> {
+		const response = await this.sendMessage(message);
+		const data = (response as any).text.value;
+		console.log(data);
+		return JSON.parse(data);
+	}
 
 	async sendMessage(message: string): Promise<string> {
 		const thread = await this.createThread();
@@ -66,24 +94,11 @@ export class ChatGpt implements ChatBot {
 		}
 	}
 
-	// private async gptSendMessage(
-	// 	message: string,
-	// 	role: ChatGptRoles,
-	// 	history: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
-	// ) {
-	// 	history.push({
-	// 		content: message,
-	// 		role: role,
-	// 	});
-	// 	return this.openai.chat.completions.create({
-	// 		model: this.chatgptModel,
-	// 		messages: history,
-	// 	});
-	// }
-
 	private async getAssistantResponse(threadId: string) {
 		const response = await this.openai.beta.threads.messages.list(threadId);
 		const messages = response.data;
+
+		console.log(messages);
 
 		// Find the last assistant message
 		const assistantMessage = messages
