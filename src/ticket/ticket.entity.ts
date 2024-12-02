@@ -111,10 +111,6 @@ export class Ticket {
 	@Prop({
 		type: [ProductSchema],
 		required: false,
-		// ref: Product.name,
-		// default: (): mongoose.Types.ObjectId[] => {
-		// 	return [] as mongoose.Types.ObjectId[];
-		// },
 	})
 	products?: [Product];
 
