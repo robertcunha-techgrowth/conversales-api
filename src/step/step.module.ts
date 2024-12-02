@@ -5,18 +5,14 @@ import {
 	FactoryProvider,
 } from "../common/dependency-injection/provider";
 import { Step, StepSchema } from "./step.entity";
-import { ChatGptModule } from "../chatbot/chatgpt/chatgpt.module";
-import { TelegramModule } from "../channel/telegram/telegram.module";
 import { TicketModule } from "../ticket/ticket.module";
-import {
-	IntroStep,
-	CollectData,
-	CheckoutStep,
-	ConfirmStep,
-	ListProductsStep,
-	SelectedProductStep,
-} from "./step.service";
 import { ProductModule } from "../product/product.module";
+import { IntroStep } from "./introduction-step";
+import { ListProductsStep } from "./list-product-step";
+import { SetPropertyStep } from "./set-property-step";
+import { AddProductStep } from "./add-product-step";
+import { CheckoutStep } from "./checkout-step";
+import { DetectStep } from "./detect-step";
 
 const StepModelProvider = new FactoryProvider({
 	provide: "StepModel",
@@ -35,14 +31,14 @@ const ListProductsStepProvider = new ClassProvider({
 	useClass: ListProductsStep,
 });
 
-const SelectedProductStepProvider = new ClassProvider({
-	provide: SelectedProductStep.name,
-	useClass: SelectedProductStep,
+const SetPropertyStepProvider = new ClassProvider({
+	provide: SetPropertyStep.name,
+	useClass: SetPropertyStep,
 });
 
-const CollectedDataStepProvider = new ClassProvider({
-	provide: CollectData.name,
-	useClass: CollectData,
+const AddProductStepProvider = new ClassProvider({
+	provide: AddProductStep.name,
+	useClass: AddProductStep,
 });
 
 const CheckoutStepProvider = new ClassProvider({
@@ -50,30 +46,30 @@ const CheckoutStepProvider = new ClassProvider({
 	useClass: CheckoutStep,
 });
 
-const ConfirmStepProvider = new ClassProvider({
-	provide: ConfirmStep.name,
-	useClass: ConfirmStep,
+const DetectStepProvider = new ClassProvider({
+	provide: DetectStep.name,
+	useClass: DetectStep,
 });
 
 @ModuleHandler({
-	imports: [ChatGptModule, TelegramModule, TicketModule, ProductModule],
+	imports: [TicketModule, ProductModule],
 	providers: [
 		NormalStepProvider,
 		ListProductsStepProvider,
-		SelectedProductStepProvider,
 		StepModelProvider,
-		CollectedDataStepProvider,
+		SetPropertyStepProvider,
+		AddProductStepProvider,
 		CheckoutStepProvider,
-		ConfirmStepProvider,
+		DetectStepProvider,
 	],
 	exports: [
 		NormalStepProvider,
 		ListProductsStepProvider,
-		SelectedProductStepProvider,
 		StepModelProvider,
-		CollectedDataStepProvider,
+		SetPropertyStepProvider,
+		AddProductStepProvider,
 		CheckoutStepProvider,
-		ConfirmStepProvider,
+		DetectStepProvider,
 	],
 })
 export class StepModule {}

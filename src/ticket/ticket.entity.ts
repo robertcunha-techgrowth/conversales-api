@@ -5,6 +5,7 @@ import { Schema } from "../common/database/schema.decorator";
 import { SchemaFactory } from "../common/database/schema.factory";
 import { Prop } from "../common/database/prop.decorator";
 import { ChatBotHistory } from "../chatbot/chatbot";
+import { StepKind } from "../step/step.entity";
 
 export enum StatusTicket {
 	Active = "ACTIVE",
@@ -27,6 +28,12 @@ export class UserOnTicket {
 		default: null,
 	})
 	nationalId?: string;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	email?: string;
 
 	[key: string]: any;
 }
@@ -102,11 +109,10 @@ export class Ticket {
 	email?: string;
 
 	@Prop({
-		type: [mongoose.Types.ObjectId],
+		type: [ProductSchema],
 		required: false,
-		ref: Product.name,
 	})
-	products?: mongoose.Types.ObjectId | Product[];
+	products?: [Product];
 
 	@Prop({
 		type: [ProductSchema],
@@ -130,6 +136,12 @@ export class Ticket {
 		},
 	})
 	user?: UserOnTicket;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	previousStep?: StepKind;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);

@@ -13,9 +13,7 @@ import { WebhookTelegramData } from "./webhook-telegram.service";
 import { Step, StepKind } from "../step/step.entity";
 import { Model } from "mongoose";
 import { StepModule } from "../step/step.module";
-import { ChatBot } from "../chatbot/chatbot";
 import { ChatGptModule } from "../chatbot/chatgpt/chatgpt.module";
-import { Channel } from "../channel/channel";
 import { TelegramModule } from "../channel/telegram/telegram.module";
 import { AxiosInstance } from "axios";
 import OpenAI from "openai";
@@ -142,13 +140,13 @@ describe("WebhookHandler", () => {
 			const step: Step = {
 				stepNumber: 1,
 				rule: "None",
-				texts: {
-					"200": "Hello, this is my test",
-					"400": "Failure",
-				},
-				isFirstStep: false,
-				isFinalStep: false,
-				kind: StepKind.INTRO_STEP,
+				// texts: {
+				// 	"200": "Hello, this is my test",
+				// 	"400": "Failure",
+				// },
+				// isFirstStep: false,
+				// isFinalStep: false,
+				kind: StepKind.GREETING,
 			};
 			await stepModel.create(step);
 			// Arrange
@@ -241,13 +239,13 @@ describe("WebhookHandler", () => {
 			const step: Step = {
 				stepNumber: 1,
 				rule: "None",
-				texts: {
-					"200": "Hello, this is my test",
-					"400": "Failure",
-				},
-				isFirstStep: false,
-				isFinalStep: false,
-				kind: StepKind.LIST_PRODUCTS_STEP,
+				// texts: {
+				// 	"200": "Hello, this is my test",
+				// 	"400": "Failure",
+				// },
+				// isFirstStep: false,
+				// isFinalStep: false,
+				kind: StepKind.LIST_PRODUCTS,
 			};
 			await stepModel.create(step);
 			// Arrange

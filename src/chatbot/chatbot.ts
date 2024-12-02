@@ -1,14 +1,28 @@
-import OpenAI from "openai";
+export interface InputStepParams {}
 
-export interface ChatBotResponse {
-	statusCode: number;
-	message?: string;
+export interface OutputTaskInterpretation {
+	rule: string;
+	params?: InputStepParams;
+}
+
+export interface UserMessageParams {}
+export interface InterpretateMessageResponse {
+	step: string;
+	params?: UserMessageParams;
+}
+
+export interface GetMessageResponse {
+	message: string;
 }
 
 export interface ChatBotHistory {
 	role: string;
 	content: string;
 }
+
 export interface ChatBot {
-	sendMessage(message: string): Promise<string>;
+	getMessageTemplate(
+		rule: string,
+		params: Record<string, any>
+	): Promise<string>;
 }
