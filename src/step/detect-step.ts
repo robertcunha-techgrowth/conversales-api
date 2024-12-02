@@ -1,8 +1,3 @@
-// usuário manda mensagem - bot faz a introdução e exibe o menu - usuario escolhe uma opção
-// caminho de venda -> listar produtos -> usuário seleciona o produto -> adiciona produto ao carrinho -> pede nome -> usuário preenche nome
-// pede email -> usuário preenche email -> exibe o checkout para o usuário -> usuario confirma o checkout -> exibe o pagamento -> usuario paga
-// webhook dispara -> usuário recebe mensagem de confirmação de pagamento
-
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
