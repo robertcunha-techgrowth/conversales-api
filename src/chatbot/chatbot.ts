@@ -1,9 +1,7 @@
-import { StepKind } from "../step/step.entity";
-
 export interface InputStepParams {}
 
 export interface OutputTaskInterpretation {
-	step: StepKind;
+	rule: string;
 	params?: InputStepParams;
 }
 
@@ -23,10 +21,8 @@ export interface ChatBotHistory {
 }
 
 export interface ChatBot {
-	getMessage(
-		inputParams: InputStepParams,
-		step: string
-	): Promise<GetMessageResponse>;
-
-	interpretateMessage(message: string): Promise<InterpretateMessageResponse>;
+	getMessageTemplate(
+		rule: string,
+		params: Record<string, any>
+	): Promise<string>;
 }
