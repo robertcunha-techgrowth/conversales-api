@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { globalTarget } from "../dependency-injection/global-target";
+import { SchemaDefinitionProperty } from "mongoose";
 
 export interface SchemaProp {
 	type: any;
@@ -9,7 +10,7 @@ export interface SchemaProp {
 	ref?: string;
 }
 
-export const Prop = (prop: SchemaProp): PropertyDecorator => {
+export const Prop = (prop: SchemaDefinitionProperty): PropertyDecorator => {
 	return (target: Object, propertyKey: string | symbol) => {
 		Reflect.defineMetadata(
 			`${target.constructor.name}:${propertyKey.toString()}`,
