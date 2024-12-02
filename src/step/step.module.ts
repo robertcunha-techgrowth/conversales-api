@@ -12,6 +12,7 @@ import { ListProductsStep } from "./list-product-step";
 import { SetPropertyStep } from "./set-property-step";
 import { AddProductStep } from "./add-product-step";
 import { CheckoutStep } from "./checkout-step";
+import { DetectStep } from "./detect-step";
 
 const StepModelProvider = new FactoryProvider({
 	provide: "StepModel",
@@ -45,6 +46,11 @@ const CheckoutStepProvider = new ClassProvider({
 	useClass: CheckoutStep,
 });
 
+const DetectStepProvider = new ClassProvider({
+	provide: DetectStep.name,
+	useClass: DetectStep,
+});
+
 @ModuleHandler({
 	imports: [TicketModule, ProductModule],
 	providers: [
@@ -54,6 +60,7 @@ const CheckoutStepProvider = new ClassProvider({
 		SetPropertyStepProvider,
 		AddProductStepProvider,
 		CheckoutStepProvider,
+		DetectStepProvider,
 	],
 	exports: [
 		NormalStepProvider,
@@ -62,6 +69,7 @@ const CheckoutStepProvider = new ClassProvider({
 		SetPropertyStepProvider,
 		AddProductStepProvider,
 		CheckoutStepProvider,
+		DetectStepProvider,
 	],
 })
 export class StepModule {}
