@@ -21,27 +21,18 @@ export class ChatGpt implements ChatBot {
 		@Inject("AssistantId") private readonly assistantId: string
 	) {}
 
-	async getMessage(
-		inputParams: OutputTaskInterpretation,
-		step: string
-	): Promise<GetMessageResponse> {
+	async getMessageTemplate(
+		rule: string,
+		params: Record<string, any>
+	): Promise<string> {
 		const response = await this.sendMessage(
 			JSON.stringify({
-				step,
-				params: inputParams,
+				rule,
+				params,
 			})
 		);
 		const data = (response as any).text.value;
-		return JSON.parse(data);
-	}
-
-	async interpretateMessage(
-		message: string
-	): Promise<InterpretateMessageResponse> {
-		const response = await this.sendMessage(message);
-		const data = (response as any).text.value;
-		console.log(data);
-		return JSON.parse(data);
+		return data;
 	}
 
 	async sendMessage(message: string): Promise<string> {
