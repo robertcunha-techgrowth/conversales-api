@@ -4,7 +4,7 @@ import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
 import { StepService } from "./step.service";
 import { OutputTaskInterpretation, InputStepParams } from "../chatbot/chatbot";
-import { StepKind } from "./step.entity";
+import { Step, StepKind } from "./step.entity";
 
 export interface SetPropertyUserMessageParams extends InputStepParams {
 	property: string;
@@ -13,11 +13,17 @@ export interface SetPropertyUserMessageParams extends InputStepParams {
 
 @Injectable()
 export class SetPropertyStep extends StepService {
+	[key: string]: any;
+
 	override async run(
 		ticket: Ticket,
-		params?: SetPropertyUserMessageParams
+		text: string
 	): Promise<OutputTaskInterpretation> {
-		const { property, value } = params;
+		const step = await this.model.findOne({
+			stepNumber: ticket.currentStep,
+		});
+		const { property } = step;
+		const value = await this[property](text);
 		ticket.user[property] = value;
 		await this.ticketModel.findOneAndUpdate(
 			{
@@ -25,22 +31,54 @@ export class SetPropertyStep extends StepService {
 			},
 			{
 				user: ticket.user,
+				currentStep: step.chainedStep,
 			}
 		);
 		return {
-			step: StepKind.SET_PROPERTY,
-			params: {
-				property,
-				filledProperties: {
-					name: ticket.user.name,
-					nationalId: ticket.user.nationalId,
-					email: ticket.user.email,
-				},
-			},
+			rule: step.rule,
 		};
 	}
 
-	constructor(@Inject("TicketModel") ticketModel: Model<Ticket>) {
-		super(ticketModel);
+	private async name(value: string) {
+		if (!value) {
+			throw {
+				statusCode: 400,
+				body: {
+					message: "Name is required.",
+				},
+			};
+		}
+		return value;
+	}
+
+	private async nationalId(value: string) {
+		if (!value) {
+			throw {
+				statusCode: 400,
+				body: {
+					message: "National ID is required.",
+				},
+			};
+		}
+		return value;
+	}
+
+	private async email(value: string) {
+		if (!value) {
+			throw {
+				statusCode: 400,
+				body: {
+					message: "Email is required.",
+				},
+			};
+		}
+		return value;
+	}
+
+	constructor(
+		@Inject("StepModel") stepModel: Model<Step>,
+		@Inject("TicketModel") ticketModel: Model<Ticket>
+	) {
+		super(stepModel, ticketModel);
 	}
 }
