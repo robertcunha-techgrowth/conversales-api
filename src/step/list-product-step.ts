@@ -5,7 +5,7 @@ import { Injectable } from "../common/dependency-injection/injectable";
 import { Product } from "../product/product.entity";
 import { ProductService } from "../product/product.service";
 import { Ticket } from "../ticket/ticket.entity";
-import { StepKind } from "./step.entity";
+import { Step, StepKind } from "./step.entity";
 import { StepService } from "./step.service";
 
 export interface InputParamsListProducts extends InputStepParams {
@@ -17,15 +17,18 @@ export class ListProductsStep extends StepService {
 	constructor(
 		@Inject(ProductService.name)
 		private readonly productService: ProductService,
-		@Inject("TicketModel") ticketModel: Model<Ticket>
+		@Inject("TicketModel") ticketModel: Model<Ticket>,
+		@Inject("StepModel") private readonly stepModel: Model<Step>
 	) {
-		super(ticketModel);
+		super(stepModel, ticketModel);
 	}
 
-	async run(
-		ticket: Ticket,
-		_params?: InputParamsListProducts
-	): Promise<OutputTaskInterpretation> {
+	async run(ticket: Ticket, _text: string): Promise<OutputTaskInterpretation> {
+		const step = await this.model
+			.findOne({
+				stepNumber: ticket.currentStep,
+			})
+			.lean();
 		const products = await this.productService.findAll();
 		await this.ticketModel.findOneAndUpdate(
 			{
@@ -33,19 +36,22 @@ export class ListProductsStep extends StepService {
 			},
 			{
 				products,
+				currentStep: step.chainedStep,
 			}
 		);
 		return {
-			step: StepKind.LIST_PRODUCTS,
+			rule: step.rule,
 			params: {
-				products: products.map((product) => {
-					return {
-						num: product.num,
+				menu: products.reduce<
+					Record<number, { name: string; price: number; description: string }>
+				>((prev, product) => {
+					prev[product.num] = {
 						name: product.name,
 						price: product.price,
 						description: product.description,
 					};
-				}),
+					return prev;
+				}, {}),
 			},
 		};
 	}
