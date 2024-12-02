@@ -1,6 +1,7 @@
 import { Model } from "mongoose";
 import { StatusTicket, Ticket } from "../ticket/ticket.entity";
 import { StepService } from "../step/step.service";
+import { StepKind } from "../step/step.entity";
 
 export interface WebhookData {}
 
@@ -9,7 +10,7 @@ export abstract class WebhookService {
 
 	constructor(
 		protected readonly ticketModel: Model<Ticket>,
-		protected readonly steps: Record<string, StepService>,
+		protected readonly steps: Record<StepKind, StepService>,
 		channelId: string
 	) {
 		this.channelId = channelId;
