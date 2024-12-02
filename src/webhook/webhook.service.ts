@@ -31,8 +31,8 @@ export abstract class WebhookService {
 				documentId,
 				status: StatusTicket.Active,
 				from,
-				currentStep: 1,
 				channel: this.channelId,
+				currentStep: 1,
 			});
 			return newTicket.toObject();
 		}
