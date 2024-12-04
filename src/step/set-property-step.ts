@@ -32,6 +32,10 @@ export class SetPropertyStep extends StepService {
 			{
 				user: ticket.user,
 				currentStep: step.chainedStep,
+				previousInput: {
+					rule: step.rule,
+					params: {},
+				},
 			}
 		);
 		return {

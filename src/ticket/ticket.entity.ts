@@ -4,7 +4,7 @@ import { Product, ProductSchema } from "../product/product.entity";
 import { Schema } from "../common/database/schema.decorator";
 import { SchemaFactory } from "../common/database/schema.factory";
 import { Prop } from "../common/database/prop.decorator";
-import { ChatBotHistory } from "../chatbot/chatbot";
+import { ChatBotHistory, InputStepParams } from "../chatbot/chatbot";
 import { StepKind } from "../step/step.entity";
 
 export enum StatusTicket {
@@ -142,6 +142,15 @@ export class Ticket {
 		default: null,
 	})
 	previousStep?: StepKind;
+
+	@Prop({
+		type: Object,
+		default: null,
+	})
+	previousInput?: {
+		rule: string;
+		params: InputStepParams;
+	};
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);

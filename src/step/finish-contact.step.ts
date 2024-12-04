@@ -2,13 +2,12 @@ import { Model } from "mongoose";
 import { OutputTaskInterpretation } from "../chatbot/chatbot";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
-import { Ticket } from "../ticket/ticket.entity";
+import { StatusTicket, Ticket } from "../ticket/ticket.entity";
 import { Step } from "./step.entity";
 import { StepService } from "./step.service";
-import { MenuItem } from "../menu/menu.entity";
 
 @Injectable()
-export class IntroStep extends StepService {
+export class FinishContactStep extends StepService {
 	constructor(
 		@Inject("StepModel") stepModel: Model<Step>,
 		@Inject("TicketModel") ticketModel: Model<Ticket>
@@ -16,46 +15,26 @@ export class IntroStep extends StepService {
 		super(stepModel, ticketModel);
 	}
 
-	async run(ticket: Ticket, _text: string): Promise<OutputTaskInterpretation> {
+	override async run(
+		ticket: Ticket,
+		_text: string
+	): Promise<OutputTaskInterpretation> {
 		const step = await this.model
 			.findOne({
 				stepNumber: ticket.currentStep,
 			})
 			.lean();
-
-		const newStep = await this.model
-			.findOne({
-				stepNumber: step.detectStepToRedirect,
-			})
-			.lean();
-
-		const menu = newStep.menu.items.reduce<Record<number, MenuItem>>(
-			(prev, item, index) => {
-				prev[index + 1] = item;
-				return prev;
-			},
-			{}
-		);
-
 		await this.ticketModel.findOneAndUpdate(
 			{
 				_id: ticket._id,
 			},
 			{
-				currentStep: step.detectStepToRedirect,
-				previousInput: {
-					rule: step.rule,
-					params: {
-						menu,
-					},
-				},
+				status: StatusTicket.Closed,
 			}
 		);
 		return {
+			params: {},
 			rule: step.rule,
-			params: {
-				menu,
-			},
 		};
 	}
 }

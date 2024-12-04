@@ -13,6 +13,7 @@ import { SetPropertyStep } from "./set-property-step";
 import { AddProductStep } from "./add-product-step";
 import { CheckoutStep } from "./checkout-step";
 import { DetectStep } from "./detect-step";
+import { FinishContactStep } from "./finish-contact.step";
 
 const StepModelProvider = new FactoryProvider({
 	provide: "StepModel",
@@ -51,6 +52,11 @@ const DetectStepProvider = new ClassProvider({
 	useClass: DetectStep,
 });
 
+const FinishContactProvider = new ClassProvider({
+	provide: FinishContactStep.name,
+	useClass: FinishContactStep,
+});
+
 @ModuleHandler({
 	imports: [TicketModule, ProductModule],
 	providers: [
@@ -60,6 +66,7 @@ const DetectStepProvider = new ClassProvider({
 		SetPropertyStepProvider,
 		AddProductStepProvider,
 		CheckoutStepProvider,
+		FinishContactProvider,
 		DetectStepProvider,
 	],
 	exports: [
@@ -69,6 +76,7 @@ const DetectStepProvider = new ClassProvider({
 		SetPropertyStepProvider,
 		AddProductStepProvider,
 		CheckoutStepProvider,
+		FinishContactProvider,
 		DetectStepProvider,
 	],
 })

@@ -11,6 +11,9 @@ import { AddProductStep } from "../step/add-product-step";
 import { IntroStep } from "../step/introduction-step";
 import { ListProductsStep } from "../step/list-product-step";
 import { SetPropertyStep } from "../step/set-property-step";
+import { CheckoutStep } from "../step/checkout-step";
+import { DetectStep } from "../step/detect-step";
+import { FinishContactStep } from "../step/finish-contact.step";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
@@ -64,10 +67,14 @@ export class WebhookWhatsappService extends WebhookService {
 		@Inject(IntroStep.name) normalStep: StepService,
 		@Inject(ListProductsStep.name) listProductsStep: StepService,
 		@Inject(AddProductStep.name) addProduct: StepService,
-		@Inject(SetPropertyStep.name) setProperty: StepService
+		@Inject(SetPropertyStep.name) setProperty: StepService,
+		@Inject(CheckoutStep.name) checkoutStep: StepService,
+		@Inject(DetectStep.name) detectStep: StepService,
+		@Inject(FinishContactStep.name) finishContactStep: StepService,
 		// @Inject("StepModel") private readonly stepModel: Model<Step>,
-		// @Inject("Chatbot") private readonly chatbot: ChatBot,
-		// @Inject("Channel") private readonly channel: Channel
+		@Inject("Chatbot") private readonly chatbot: ChatBot,
+		@Inject("Channel") private readonly channel: Channel,
+		@Inject("StepModel") private readonly stepModel: Model<Step>
 	) {
 		super(
 			ticketModel,
@@ -76,8 +83,11 @@ export class WebhookWhatsappService extends WebhookService {
 				LIST_PRODUCTS: listProductsStep,
 				ADD_PRODUCT: addProduct,
 				SET_PROPERTY: setProperty,
+				CHECKOUT: checkoutStep,
+				DETECT_STEP: detectStep,
+				FINISH_CONTACT: finishContactStep,
 			},
-			"WHATSAPP"
+			"TELEGRAM"
 		);
 	}
 
@@ -93,7 +103,7 @@ export class WebhookWhatsappService extends WebhookService {
 
 		const ticketAndMessage = await Promise.all(promisesTicketWithMessage);
 		const runPromises = ticketAndMessage.map(({ ticket, message }) => {
-			return this.steps[ticket.currentStep].run(ticket, message);
+			return this.runStepForTicket(ticket, message);
 		});
 
 		await Promise.all(runPromises);
@@ -112,5 +122,13 @@ export class WebhookWhatsappService extends WebhookService {
 			ticket,
 			message,
 		};
+	}
+
+	private async runStepForTicket(ticket: Ticket, message: string) {
+		const step = await this.stepModel.findOne({
+			stepNumber: ticket.currentStep,
+		});
+		const { kind } = step;
+		return this.steps[kind].run(ticket, message);
 	}
 }

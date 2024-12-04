@@ -8,6 +8,7 @@ import { ListProductsStep } from "./list-product-step";
 import { SetPropertyStep } from "./set-property-step";
 import { Step, StepKind } from "./step.entity";
 import { StepService } from "./step.service";
+import { FinishContactStep } from "./finish-contact.step";
 
 @Injectable()
 export class DetectStep extends StepService {
@@ -19,7 +20,8 @@ export class DetectStep extends StepService {
 		@Inject(ListProductsStep.name) listProductStep: StepService,
 		@Inject(AddProductStep.name) addProduct: StepService,
 		@Inject(CheckoutStep.name) checkout: StepService,
-		@Inject(SetPropertyStep.name) setProperty: StepService
+		@Inject(SetPropertyStep.name) setProperty: StepService,
+		@Inject(FinishContactStep.name) finishContactStep: StepService
 	) {
 		super(model, ticketModel);
 		this.options = {
@@ -27,6 +29,7 @@ export class DetectStep extends StepService {
 			[StepKind.ADD_PRODUCT]: addProduct,
 			[StepKind.CHECKOUT]: checkout,
 			[StepKind.SET_PROPERTY]: setProperty,
+			[StepKind.FINISH_CONTACT]: finishContactStep,
 		};
 	}
 
@@ -44,6 +47,12 @@ export class DetectStep extends StepService {
 		});
 		ticket.currentStep = nextStepNumber;
 		const runner = this.options[nextStep.kind];
+		if (!runner) {
+			throw {
+				statusCode: 400,
+				message: "Invalid option, can't finde runner.",
+			};
+		}
 		return runner.run(ticket, text);
 	}
 
