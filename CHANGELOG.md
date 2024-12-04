@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.1.0...v1.2.0) (2024-12-04)
+
+
+### Features
+
+* finish contact ([32abe04](https://github.com/Techgrowth-Labs/conversales-api/commit/32abe04ecc5fa49fddc2aecb6d910f1578b2ded9))
+
 ## [1.1.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.0.0...v1.1.0) (2024-12-02)
 
 
