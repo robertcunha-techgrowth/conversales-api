@@ -10,6 +10,7 @@ export enum StepKind {
 	CHECKOUT = "CHECKOUT",
 	SET_PROPERTY = "SET_PROPERTY",
 	DETECT_STEP = "DETECT_STEP",
+	FINISH_CONTACT = "FINISH_CONTACT",
 }
 @Schema({
 	timestamps: true,
