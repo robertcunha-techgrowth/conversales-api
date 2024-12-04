@@ -34,6 +34,7 @@ export class CheckoutStep extends StepService {
 				},
 			};
 		}
+
 		if (!user.name || !user.nationalId || !user) {
 			throw {
 				statusCode: 400,
@@ -42,13 +43,13 @@ export class CheckoutStep extends StepService {
 				},
 			};
 		}
+
 		return {
 			rule: step.rule,
 			params: {
 				user: user,
 				products: cart.map((product) => {
 					return {
-						num: product.num,
 						name: product.name,
 						price: product.price,
 						description: product.description,

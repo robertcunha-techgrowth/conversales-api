@@ -5,6 +5,7 @@ import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
 import { Step } from "./step.entity";
 import { StepService } from "./step.service";
+import { MenuItem } from "../menu/menu.entity";
 
 @Injectable()
 export class IntroStep extends StepService {
@@ -21,30 +22,39 @@ export class IntroStep extends StepService {
 				stepNumber: ticket.currentStep,
 			})
 			.lean();
+
+		const newStep = await this.model
+			.findOne({
+				stepNumber: step.detectStepToRedirect,
+			})
+			.lean();
+
+		const menu = newStep.menu.items.reduce<Record<number, MenuItem>>(
+			(prev, item, index) => {
+				prev[index + 1] = item;
+				return prev;
+			},
+			{}
+		);
+
 		await this.ticketModel.findOneAndUpdate(
 			{
 				_id: ticket._id,
 			},
 			{
 				currentStep: step.detectStepToRedirect,
+				previousInput: {
+					rule: step.rule,
+					params: {
+						menu,
+					},
+				},
 			}
 		);
-		const newStep = await this.model
-			.findOne({
-				stepNumber: step.detectStepToRedirect,
-			})
-			.lean();
-		newStep.menu.items.map((item) => {
-			return `${item.key}. ${item}`;
-		});
 		return {
 			rule: step.rule,
 			params: {
-				menu: {
-					1: "Listar Produtos",
-					2: "Informações de contato",
-					3: "Encerrar contato",
-				},
+				menu,
 			},
 		};
 	}

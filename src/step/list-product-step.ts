@@ -37,8 +37,27 @@ export class ListProductsStep extends StepService {
 			{
 				products,
 				currentStep: step.chainedStep,
+				previousInput: {
+					rule: step.rule,
+					params: {
+						menu: products.reduce<
+							Record<
+								number,
+								{ name: string; price: number; description: string }
+							>
+						>((prev, product) => {
+							prev[product.num] = {
+								name: product.name,
+								price: product.price,
+								description: product.description,
+							};
+							return prev;
+						}, {}),
+					},
+				},
 			}
 		);
+
 		return {
 			rule: step.rule,
 			params: {

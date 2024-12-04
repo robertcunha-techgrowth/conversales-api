@@ -60,6 +60,17 @@ export class AddProductStep extends StepService {
 				},
 
 				currentStep: step.chainedStep,
+				previousInput: {
+					rule: step.rule,
+					params: {
+						product: {
+							num: product.num,
+							name: product.name,
+							price: product.price,
+							description: product.description,
+						},
+					},
+				},
 			}
 		);
 
