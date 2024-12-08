@@ -28,14 +28,14 @@ functions:
     handler: src/webhook/index.whatsapp
     events:
       - httpApi:
-          path: /webhook/whatsapp
+          path: /{companyId}/webhook/whatsapp
           method: post
   webhook-telegram:
     handler: src/webhook/index.telegram
     timeout: 30
     events:
       - httpApi:
-          path: /webhook/telegram
+          path: /{companyId}/webhook/telegram
           method: post
 
 package:
