@@ -1,17 +1,21 @@
 import mongoose from "mongoose";
 import { ModuleHandler } from "../common/dependency-injection/module";
-import { FactoryProvider } from "../common/dependency-injection/provider";
+import {
+	ClassProvider,
+	FactoryProvider,
+} from "../common/dependency-injection/provider";
 import { Payment, PaymentSchema } from "./payment.entity";
 import axios from "axios";
+import { PaymentService } from "./payment.service";
 
-const PaymentModelProvider = new FactoryProvider({
+export const PaymentModelProvider = new FactoryProvider({
 	provide: "PaymentModel",
 	useFactory: () => {
 		return mongoose.model(Payment.name, PaymentSchema);
 	},
 });
 
-const PaymentAxiosProvider = new FactoryProvider({
+export const PaymentAxiosProvider = new FactoryProvider({
 	provide: "PaymentAxios",
 	useFactory: () => {
 		return axios.create({
@@ -20,7 +24,17 @@ const PaymentAxiosProvider = new FactoryProvider({
 	},
 });
 
+export const PaymentServiceProvider = new ClassProvider({
+	provide: PaymentService.name,
+	useClass: PaymentService,
+});
+
 @ModuleHandler({
-	providers: [PaymentModelProvider],
+	providers: [
+		PaymentModelProvider,
+		PaymentAxiosProvider,
+		PaymentServiceProvider,
+	],
+	exports: [PaymentModelProvider, PaymentAxiosProvider, PaymentServiceProvider],
 })
 export class PaymentModule {}
