@@ -67,7 +67,7 @@ export class PaymentService {
 		cobData: CobData,
 		token: string
 	): Promise<EfiPixResponse> {
-		const response = await this.axios.post("/pix", cobData, {
+		const response = await this.axios.post("/cob", cobData, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
