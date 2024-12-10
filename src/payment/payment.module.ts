@@ -7,6 +7,8 @@ import {
 import { Payment, PaymentSchema } from "./payment.entity";
 import axios from "axios";
 import { PaymentService } from "./payment.service";
+import fs from "fs";
+import https from "https";
 
 export const PaymentModelProvider = new FactoryProvider({
 	provide: "PaymentModel",
@@ -18,8 +20,16 @@ export const PaymentModelProvider = new FactoryProvider({
 export const PaymentAxiosProvider = new FactoryProvider({
 	provide: "PaymentAxios",
 	useFactory: () => {
+		const certificado = fs.readFileSync(process.env.EFI_CERTIFICATE_PATH);
+
+		const agent = new https.Agent({
+			pfx: certificado,
+			passphrase: "",
+		});
+
 		return axios.create({
 			baseURL: process.env.EFI_BASE_URL,
+			httpsAgent: agent,
 		});
 	},
 });
