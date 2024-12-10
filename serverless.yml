@@ -16,6 +16,7 @@ custom:
     hooks:
       "before:deploy:deploy": "npm run build"
       "after:deploy:deploy": "npm run clean"
+  certificatePath: ${file(./certify.p12)}
 
 functions:
   api:
@@ -37,7 +38,10 @@ functions:
       - httpApi:
           path: /{companyId}/webhook/telegram
           method: post
+# package:
+#   include:
+#     - certifies/** # Inclui todos os arquivos na pasta `assets`
 
 package:
   include:
-    - certifies/** # Inclui todos os arquivos na pasta `assets`
+    - certify.p12
