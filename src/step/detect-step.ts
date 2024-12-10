@@ -9,6 +9,7 @@ import { SetPropertyStep } from "./set-property-step";
 import { Step, StepKind } from "./step.entity";
 import { StepService } from "./step.service";
 import { FinishContactStep } from "./finish-contact.step";
+import { PaymentStep } from "./payment-step";
 
 @Injectable()
 export class DetectStep extends StepService {
@@ -21,7 +22,8 @@ export class DetectStep extends StepService {
 		@Inject(AddProductStep.name) addProduct: StepService,
 		@Inject(CheckoutStep.name) checkout: StepService,
 		@Inject(SetPropertyStep.name) setProperty: StepService,
-		@Inject(FinishContactStep.name) finishContactStep: StepService
+		@Inject(FinishContactStep.name) finishContactStep: StepService,
+		@Inject(PaymentStep.name) paymentStep: StepService
 	) {
 		super(model, ticketModel);
 		this.options = {
@@ -30,6 +32,7 @@ export class DetectStep extends StepService {
 			[StepKind.CHECKOUT]: checkout,
 			[StepKind.SET_PROPERTY]: setProperty,
 			[StepKind.FINISH_CONTACT]: finishContactStep,
+			[StepKind.PAYMENT]: paymentStep,
 		};
 	}
 
