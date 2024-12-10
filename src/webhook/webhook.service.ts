@@ -16,15 +16,16 @@ export abstract class WebhookService {
 		this.channelId = channelId;
 	}
 
-	abstract webhook(data: WebhookData): Promise<Ticket>;
+	abstract webhook(data: WebhookData, companyId: string): Promise<Ticket>;
 
-	protected async getTicket(from: string): Promise<Ticket> {
+	protected async getTicket(from: string, companyId: string): Promise<Ticket> {
 		const documentId = `${this.channelId}:${from}`;
 		console.log(`Getting ticket for ${documentId}`);
 		const ticket = await this.ticketModel
 			.findOne({
 				documentId,
 				status: StatusTicket.Active,
+				company: companyId,
 			})
 			.lean();
 		if (!ticket) {
@@ -34,6 +35,7 @@ export abstract class WebhookService {
 				from,
 				channel: this.channelId,
 				currentStep: 1,
+				company: companyId,
 			});
 			return newTicket.toObject();
 		}
