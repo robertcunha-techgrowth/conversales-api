@@ -5,6 +5,8 @@ import { StepKind } from "../step/step.entity";
 
 export interface WebhookData {}
 
+export interface FindIdParams {}
+
 export abstract class WebhookService {
 	protected channelId: string;
 
@@ -22,11 +24,21 @@ export abstract class WebhookService {
 		const documentId = `${this.channelId}:${from}`;
 		console.log(`Getting ticket for ${documentId}`);
 		const ticket = await this.ticketModel
-			.findOne({
-				documentId,
-				status: StatusTicket.Active,
-				company: companyId,
-			})
+			.findOne(
+				{
+					documentId,
+					status: StatusTicket.Active,
+					company: companyId,
+				},
+				null,
+				{
+					populate: [
+						{
+							path: "company",
+						},
+					],
+				}
+			)
 			.lean();
 		if (!ticket) {
 			const newTicket = await this.ticketModel.create({
@@ -41,4 +53,6 @@ export abstract class WebhookService {
 		}
 		return ticket;
 	}
+
+	protected abstract findId(data: FindIdParams): string;
 }

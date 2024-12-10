@@ -3,7 +3,7 @@ import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
 import { StepService } from "../step/step.service";
 import { Ticket } from "../ticket/ticket.entity";
-import { WebhookData, WebhookService } from "./webhook.service";
+import { FindIdParams, WebhookData, WebhookService } from "./webhook.service";
 import { Step } from "../step/step.entity";
 import { Channel } from "../channel/channel";
 import { ChatBot } from "../chatbot/chatbot";
@@ -15,6 +15,7 @@ import { CheckoutStep } from "../step/checkout-step";
 import { DetectStep } from "../step/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
 import { PaymentStep } from "../step/payment-step";
+import { ContactInfoStep } from "../step/contact-info-step";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
@@ -61,8 +62,22 @@ export interface TicketMessage {
 	message: string;
 }
 
+export interface FindIdParamsWhatsapp extends FindIdParams {
+	from: string;
+	id: string;
+	timestamp: string;
+	text: {
+		body: string;
+	};
+	type: string;
+}
+
 @Injectable()
 export class WebhookWhatsappService extends WebhookService {
+	protected override findId(data: FindIdParamsWhatsapp): string {
+		return data.from;
+	}
+
 	constructor(
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
 		@Inject(IntroStep.name) normalStep: StepService,
@@ -76,7 +91,8 @@ export class WebhookWhatsappService extends WebhookService {
 		// @Inject("StepModel") private readonly stepModel: Model<Step>,
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
-		@Inject("StepModel") private readonly stepModel: Model<Step>
+		@Inject("StepModel") private readonly stepModel: Model<Step>,
+		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService
 	) {
 		super(
 			ticketModel,
@@ -89,8 +105,9 @@ export class WebhookWhatsappService extends WebhookService {
 				DETECT_STEP: detectStep,
 				FINISH_CONTACT: finishContactStep,
 				PAYMENT: paymentStep,
+				CONTACT_INFO: contactInfoStep,
 			},
-			"TELEGRAM"
+			"WHATSAPP"
 		);
 	}
 
@@ -100,9 +117,10 @@ export class WebhookWhatsappService extends WebhookService {
 			.flat()
 			.flat();
 
-		const promisesTicketWithMessage = messages.map((message) =>
-			this.setTicketForMessage(message.from, message.text.body, companyId)
-		);
+		const promisesTicketWithMessage = messages.map((message) => {
+			const from = this.findId(message);
+			return this.setTicketForMessage(from, message.text.body, companyId);
+		});
 
 		const ticketAndMessage = await Promise.all(promisesTicketWithMessage);
 		const runPromises = ticketAndMessage.map(({ ticket, message }) => {

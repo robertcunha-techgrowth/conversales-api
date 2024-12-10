@@ -2,7 +2,7 @@ import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
-import { WebhookData, WebhookService } from "./webhook.service";
+import { FindIdParams, WebhookData, WebhookService } from "./webhook.service";
 import { ChatBot, InputStepParams } from "../chatbot/chatbot";
 import { Channel } from "../channel/channel";
 import { IntroStep } from "../step/introduction-step";
@@ -15,6 +15,7 @@ import { Step } from "../step/step.entity";
 import { DetectStep } from "../step/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
 import { PaymentStep } from "../step/payment-step";
+import { ContactInfoStep } from "../step/contact-info-step";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
@@ -32,8 +33,20 @@ export interface WebhookTelegramData extends WebhookData {
 	};
 }
 
+export interface FindIdParamsTelegram extends FindIdParams {
+	message: {
+		chat: {
+			id: string;
+		};
+	};
+}
+
 @Injectable()
 export class WebhookTelegramService extends WebhookService {
+	protected override findId(data: FindIdParamsTelegram): string {
+		return data.message.chat.id.toString();
+	}
+
 	constructor(
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
 		@Inject(IntroStep.name) normalStep: StepService,
@@ -46,7 +59,8 @@ export class WebhookTelegramService extends WebhookService {
 		@Inject(PaymentStep.name) paymentStep: StepService,
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
-		@Inject("StepModel") private readonly stepModel: Model<Step>
+		@Inject("StepModel") private readonly stepModel: Model<Step>,
+		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService
 	) {
 		super(
 			ticketModel,
@@ -59,6 +73,7 @@ export class WebhookTelegramService extends WebhookService {
 				DETECT_STEP: detectStep,
 				FINISH_CONTACT: finishContactStep,
 				PAYMENT: paymentStep,
+				CONTACT_INFO: contactInfoStep,
 			},
 			"TELEGRAM"
 		);
@@ -67,7 +82,7 @@ export class WebhookTelegramService extends WebhookService {
 	override async webhook(data: WebhookTelegramData, companyId: string) {
 		const { text } = data.message;
 
-		const { id } = data.message.chat;
+		const id = this.findId(data);
 
 		const ticket = await this.getTicket(id.toString(), companyId);
 
@@ -85,6 +100,7 @@ export class WebhookTelegramService extends WebhookService {
 			await this.sendMessage(rule, params, id);
 			return ticket;
 		} catch (err) {
+			console.log(err);
 			await this.sendMessage(
 				`Atenção: a regra a seguir deve vir acompanhada de uma mensagem informando ao usuário que o bot não entendeu a opção digitada. \n${ticket.previousInput.rule}`,
 				ticket.previousInput?.params,

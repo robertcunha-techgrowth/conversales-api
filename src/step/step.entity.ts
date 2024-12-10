@@ -14,6 +14,7 @@ export enum StepKind {
 	DETECT_STEP = "DETECT_STEP",
 	FINISH_CONTACT = "FINISH_CONTACT",
 	PAYMENT = "PAYMENT",
+	CONTACT_INFO = "CONTACT_INFO",
 }
 @Schema({
 	timestamps: true,
