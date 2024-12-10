@@ -14,6 +14,8 @@ import { AddProductStep } from "./add-product-step";
 import { CheckoutStep } from "./checkout-step";
 import { DetectStep } from "./detect-step";
 import { FinishContactStep } from "./finish-contact.step";
+import { PaymentStep } from "./payment-step";
+import { PaymentModule } from "../payment/payment.module";
 
 const StepModelProvider = new FactoryProvider({
 	provide: "StepModel",
@@ -52,13 +54,18 @@ const DetectStepProvider = new ClassProvider({
 	useClass: DetectStep,
 });
 
+const PaymentStepProvider = new ClassProvider({
+	provide: PaymentStep.name,
+	useClass: PaymentStep,
+});
+
 const FinishContactProvider = new ClassProvider({
 	provide: FinishContactStep.name,
 	useClass: FinishContactStep,
 });
 
 @ModuleHandler({
-	imports: [TicketModule, ProductModule],
+	imports: [TicketModule, ProductModule, PaymentModule],
 	providers: [
 		NormalStepProvider,
 		ListProductsStepProvider,
@@ -67,6 +74,7 @@ const FinishContactProvider = new ClassProvider({
 		AddProductStepProvider,
 		CheckoutStepProvider,
 		FinishContactProvider,
+		PaymentStepProvider,
 		DetectStepProvider,
 	],
 	exports: [
@@ -77,6 +85,7 @@ const FinishContactProvider = new ClassProvider({
 		AddProductStepProvider,
 		CheckoutStepProvider,
 		FinishContactProvider,
+		PaymentStepProvider,
 		DetectStepProvider,
 	],
 })
