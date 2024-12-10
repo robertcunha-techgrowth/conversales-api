@@ -8,6 +8,7 @@ import { StepModule } from "../step/step.module";
 import { ProductModule } from "../product/product.module";
 import { ChatGptModule } from "../chatbot/chatgpt/chatgpt.module";
 import { TelegramModule } from "../channel/telegram/telegram.module";
+import { CompanyModule } from "../company/company.module";
 const WebhookControllerProvider = new ClassProvider({
 	provide: "WebhookHandler",
 	useClass: WebhookHandler,
@@ -30,6 +31,7 @@ const WebhookTelegramServiceProvider = new ClassProvider({
 		ProductModule,
 		ChatGptModule,
 		TelegramModule,
+		CompanyModule,
 	],
 	// controllers: [WebhookControllerProvider],
 	providers: [
