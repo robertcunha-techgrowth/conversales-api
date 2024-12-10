@@ -6,6 +6,39 @@ import { Controller } from "../common/dependency-injection/controller.decorator"
 import { TelegramApiGuard } from "../common/auth/telegram-webhook.guard";
 import { MongooseModule } from "../common/database/mongoose.module";
 
+export type APIGatewayProxyEvent = {
+	pathParameters?: { [key: string]: string | null };
+	queryStringParameters?: { [key: string]: string | null };
+	body?: string | null;
+	httpMethod: string;
+	headers: { [key: string]: string | undefined };
+	isBase64Encoded: boolean;
+	path: string;
+	resource: string;
+	requestContext: {
+		accountId: string;
+		resourceId: string;
+		stage: string;
+		requestId: string;
+		identity: {
+			cognitoIdentityPoolId?: string | null;
+			accountId?: string | null;
+			cognitoIdentityId?: string | null;
+			caller?: string | null;
+			apiKey?: string | null;
+			sourceIp: string;
+			userAgent: string;
+		};
+		authorizer?: { [key: string]: any };
+		protocol: string;
+		requestTime: string;
+		requestTimeEpoch: number;
+		resourcePath: string;
+		httpMethod: string;
+		path: string;
+	};
+};
+
 @Controller()
 export class WebhookHandler {
 	constructor(
@@ -16,24 +49,26 @@ export class WebhookHandler {
 	) {}
 
 	@TelegramApiGuard()
-	async telegram(event: any) {
+	async telegram(event: APIGatewayProxyEvent) {
 		// toDo: this connection must be performed by module
 		// await MongooseModule.forRoot(process.env.MONGO_URI);
 		const body = JSON.parse(event.body);
-		await this.webhookTelegram.webhook(body);
+		const { companyId } = event.pathParameters;
+		await this.webhookTelegram.webhook(body, companyId);
 		return {
 			statusCode: 200,
 			message: "Go Serverless v3.0! Your function executed successfully!",
 		};
 	}
 
-	async whatsapp(event: any) {
+	async whatsapp(event: APIGatewayProxyEvent) {
 		await MongooseModule.forRoot(process.env.MONGO_URI);
 		try {
 			XApiKeyGuard.canActivate(event);
 			const body = JSON.parse(event.body) as WebhookWhatsappData;
+			const { companyId } = event.pathParameters;
 
-			await this.webhookWhatsApp.webhook(body);
+			await this.webhookWhatsApp.webhook(body, companyId);
 			await MongooseModule.finish();
 			return {
 				statusCode: 200,
