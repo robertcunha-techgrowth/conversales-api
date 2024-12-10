@@ -9,24 +9,46 @@ export interface CobData {
 		expiracao: 3600;
 	};
 	devedor: {
-		cnpj: "12345678000195";
-		nome: "Empresa de Serviços SA";
+		cnpj: string;
+		nome: string;
 	};
 	valor: {
-		original: "37.00";
+		original: string;
 	};
-	chave: "ac107ed7-97cd-4fe7-8df5-a5f5659bf2f3";
-	solicitacaoPagador: "Serviço realizado.";
-	infoAdicionais: [
+	chave: string;
+	solicitacaoPagador: string;
+	infoAdicionais?: [
 		{
-			nome: "Campo 1";
-			valor: "Informação Adicional1 do PSP-Recebedor";
-		},
-		{
-			nome: "Campo 2";
-			valor: "Informação Adicional2 do PSP-Recebedor";
+			nome: string;
+			valor: string;
 		}
 	];
+}
+
+export interface EfiPixResponse {
+	calendario: {
+		criacao: string;
+		expiracao: number;
+	};
+	txid: string;
+	revisao: number;
+	loc: {
+		id: number;
+		location: string;
+		tipoCob: string;
+	};
+	location: string;
+	status: string;
+	devedor: {
+		cnpj: string;
+		nome: string;
+	};
+	valor: {
+		original: "567.89";
+	};
+	chave: string;
+	solicitacaoPagador: string;
+	pixCopiaECola: string;
 }
 
 @Injectable()
@@ -41,17 +63,15 @@ export class PaymentService {
 		return paymentCreated.toObject();
 	}
 
-	async createPix(cobData: CobData) {
-		const bearerToken = await this.getBearerToken();
+	async createPayment(
+		cobData: CobData,
+		token: string
+	): Promise<EfiPixResponse> {
 		const response = await this.axios.post("/pix", cobData, {
 			headers: {
-				Authorization: bearerToken,
+				Authorization: `Bearer ${token}`,
 			},
 		});
 		return response.data;
-	}
-
-	private async getBearerToken(): Promise<string> {
-		return `Bearer ${process.env.EFI_TOKEN}`;
 	}
 }
