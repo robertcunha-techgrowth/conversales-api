@@ -14,6 +14,7 @@ import { CheckoutStep } from "../step/checkout-step";
 import { Step } from "../step/step.entity";
 import { DetectStep } from "../step/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
+import { PaymentStep } from "../step/payment-step";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
@@ -42,6 +43,7 @@ export class WebhookTelegramService extends WebhookService {
 		@Inject(CheckoutStep.name) checkoutStep: StepService,
 		@Inject(DetectStep.name) detectStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
+		@Inject(PaymentStep.name) paymentStep: StepService,
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
 		@Inject("StepModel") private readonly stepModel: Model<Step>
@@ -56,20 +58,24 @@ export class WebhookTelegramService extends WebhookService {
 				CHECKOUT: checkoutStep,
 				DETECT_STEP: detectStep,
 				FINISH_CONTACT: finishContactStep,
+				PAYMENT: paymentStep,
 			},
 			"TELEGRAM"
 		);
 	}
 
-	override async webhook(data: WebhookTelegramData) {
+	override async webhook(data: WebhookTelegramData, companyId: string) {
 		const { text } = data.message;
 
 		const { id } = data.message.chat;
 
-		const ticket = await this.getTicket(id.toString());
+		const ticket = await this.getTicket(id.toString(), companyId);
+
+		const { company } = ticket;
 
 		const step = await this.stepModel.findOne({
 			stepNumber: ticket.currentStep,
+			company,
 		});
 
 		const { kind } = step;

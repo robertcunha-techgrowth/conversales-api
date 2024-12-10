@@ -14,6 +14,7 @@ import { SetPropertyStep } from "../step/set-property-step";
 import { CheckoutStep } from "../step/checkout-step";
 import { DetectStep } from "../step/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
+import { PaymentStep } from "../step/payment-step";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
@@ -71,6 +72,7 @@ export class WebhookWhatsappService extends WebhookService {
 		@Inject(CheckoutStep.name) checkoutStep: StepService,
 		@Inject(DetectStep.name) detectStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
+		@Inject(PaymentStep.name) paymentStep: StepService,
 		// @Inject("StepModel") private readonly stepModel: Model<Step>,
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
@@ -86,19 +88,20 @@ export class WebhookWhatsappService extends WebhookService {
 				CHECKOUT: checkoutStep,
 				DETECT_STEP: detectStep,
 				FINISH_CONTACT: finishContactStep,
+				PAYMENT: paymentStep,
 			},
 			"TELEGRAM"
 		);
 	}
 
-	override async webhook(data: WebhookWhatsappData) {
+	override async webhook(data: WebhookWhatsappData, companyId: string) {
 		const messages = data.entry
 			.map((entry) => entry.changes.map((change) => change.value.messages))
 			.flat()
 			.flat();
 
 		const promisesTicketWithMessage = messages.map((message) =>
-			this.setTicketForMessage(message.from, message.text.body)
+			this.setTicketForMessage(message.from, message.text.body, companyId)
 		);
 
 		const ticketAndMessage = await Promise.all(promisesTicketWithMessage);
@@ -115,9 +118,10 @@ export class WebhookWhatsappService extends WebhookService {
 
 	private async setTicketForMessage(
 		from: string,
-		message: string
+		message: string,
+		companyId: string
 	): Promise<TicketMessage> {
-		const ticket = await this.getTicket(from);
+		const ticket = await this.getTicket(from, companyId);
 		return {
 			ticket,
 			message,
