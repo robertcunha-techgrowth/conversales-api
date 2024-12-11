@@ -56,7 +56,7 @@ export class DetectStep extends StepService {
 		if (!runner) {
 			throw {
 				statusCode: 400,
-				message: "Invalid option, can't finde runner.",
+				message: "Invalid option, can't find runner.",
 			};
 		}
 		return runner.run(ticket, text);
