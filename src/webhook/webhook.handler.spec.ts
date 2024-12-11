@@ -163,6 +163,15 @@ describe("WebhookHandler", () => {
 				kind: StepKind.GREETING,
 				company: company._id,
 				detectStepToRedirect: 2,
+				menu: {
+					items: [
+						{
+							key: "1",
+							stepNumber: 2,
+							text: "jaij",
+						},
+					],
+				},
 			};
 			await stepModel.create(step);
 
@@ -317,6 +326,15 @@ describe("WebhookHandler", () => {
 				// isFinalStep: false,
 				kind: StepKind.LIST_PRODUCTS,
 				company: company._id,
+				menu: {
+					items: [
+						{
+							key: "1",
+							stepNumber: 2,
+							text: "jaij",
+						},
+					],
+				},
 			};
 			await stepModel.create(step);
 			// Arrange
@@ -360,5 +378,7 @@ describe("WebhookHandler", () => {
 
 			await controller.telegram(event);
 		});
+
+		it("CONTACT_INFO_STEP should return 200", async () => {});
 	});
 });
