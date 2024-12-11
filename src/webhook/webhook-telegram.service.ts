@@ -97,14 +97,15 @@ export class WebhookTelegramService extends WebhookService {
 
 		try {
 			const { rule, params } = await this.steps[kind].run(ticket, text);
-			await this.sendMessage(rule, params, id);
+			await this.sendMessage(rule, params, id, ticket);
 			return ticket;
 		} catch (err) {
 			console.log(err);
 			await this.sendMessage(
 				`Atenção: a regra a seguir deve vir acompanhada de uma mensagem informando ao usuário que o bot não entendeu a opção digitada. \n${ticket.previousInput.rule}`,
 				ticket.previousInput?.params,
-				id
+				id,
+				ticket
 			);
 			return ticket;
 		}
@@ -113,9 +114,10 @@ export class WebhookTelegramService extends WebhookService {
 	private async sendMessage(
 		rule: string,
 		params: InputStepParams,
-		from: string
+		from: string,
+		ticket: Ticket
 	) {
-		const message = await this.chatbot.getMessageTemplate(rule, params);
+		const message = await this.chatbot.getMessageTemplate(rule, params, ticket);
 		await this.channel.sendMessage(from, message);
 	}
 }
