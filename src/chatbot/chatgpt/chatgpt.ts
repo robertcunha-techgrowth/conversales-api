@@ -1,12 +1,9 @@
 import OpenAI from "openai";
 import { Injectable } from "../../common/dependency-injection/injectable";
 import { Inject } from "../../common/dependency-injection/inject";
-import {
-	ChatBot,
-	InterpretateMessageResponse,
-	OutputTaskInterpretation,
-	GetMessageResponse,
-} from "../chatbot";
+import { ChatBot } from "../chatbot";
+import { Ticket } from "../../ticket/ticket.entity";
+import { Model } from "mongoose";
 
 export enum ChatGptRoles {
 	User = "user",
@@ -18,30 +15,58 @@ export enum ChatGptRoles {
 export class ChatGpt implements ChatBot {
 	constructor(
 		@Inject("OpenAI") private readonly openai: OpenAI,
-		@Inject("AssistantId") private readonly assistantId: string
+		@Inject("AssistantId") private readonly assistantId: string,
+		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>
 	) {}
 
 	async getMessageTemplate(
 		rule: string,
-		params: Record<string, any>
+		params: Record<string, any>,
+		ticket: Ticket
 	): Promise<string> {
 		const response = await this.sendMessage(
 			JSON.stringify({
 				rule,
 				params,
-			})
+			}),
+			ticket
 		);
 		const data = (response as any).text.value;
 		return data;
 	}
 
-	async sendMessage(message: string): Promise<string> {
-		const thread = await this.createThread();
-		const threadId = thread.id;
+	async sendMessage(message: string, ticket: Ticket): Promise<string> {
+		if (!ticket.threadId) {
+			const thread = await this.createThread();
+			const threadId = thread.id;
+			ticket.threadId = threadId;
+		}
+		const { threadId } = ticket;
+		ticket.history.push({
+			role: ChatGptRoles.User,
+			content: message,
+		});
+		const response = await this.sendMessageToThread(threadId, message);
+		ticket.history.push({
+			role: ChatGptRoles.Assistant,
+			content: response.text.value,
+		});
+		await this.ticketModel.findOneAndUpdate(
+			{
+				_id: ticket._id,
+			},
+			{
+				threadId: threadId,
+				history: ticket.history,
+			}
+		);
+		return response;
+	}
+
+	private async sendMessageToThread(threadId: string, message: string) {
 		await this.addMessageToThread(threadId, message);
 		const run = await this.threadRun(threadId, this.assistantId);
 		await this.checkRunStatus(threadId, run.id);
-		// Step 5: Retrieve and return the assistant's response
 		const assistantMessage = await this.getAssistantResponse(threadId);
 		// toDo: the return of this shit is fucking wrong
 		// should fix this shit
@@ -93,8 +118,10 @@ export class ChatGpt implements ChatBot {
 
 		// Find the last assistant message
 		const assistantMessage = messages
-			.reverse()
+			// .reverse()
 			.find((msg) => msg.role === ChatGptRoles.Assistant);
+
+		// console.log(messages);
 
 		if (!assistantMessage) {
 			throw new Error("No assistant response found in the thread.");
