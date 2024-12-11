@@ -5,6 +5,7 @@ import {
 	FactoryProvider,
 } from "../../common/dependency-injection/provider";
 import { ChatGpt } from "./chatgpt";
+import { TicketModule } from "../../ticket/ticket.module";
 
 export const OpenAIProvider = new FactoryProvider({
 	provide: "OpenAI",
@@ -29,6 +30,7 @@ export const AssistantIdProvider = new FactoryProvider({
 });
 
 @ModuleHandler({
+	imports: [TicketModule],
 	providers: [OpenAIProvider, ChatGptProvider, AssistantIdProvider],
 	exports: [ChatGptProvider],
 })
