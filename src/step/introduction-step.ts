@@ -23,13 +23,7 @@ export class IntroStep extends StepService {
 			})
 			.lean();
 
-		const newStep = await this.model
-			.findOne({
-				stepNumber: step.detectStepToRedirect,
-			})
-			.lean();
-
-		const menu = newStep.menu.items.reduce<Record<number, MenuItem>>(
+		const menu = step.menu.items.reduce<Record<number, MenuItem>>(
 			(prev, item, index) => {
 				prev[index + 1] = item;
 				return prev;
@@ -51,6 +45,7 @@ export class IntroStep extends StepService {
 				},
 			}
 		);
+
 		return {
 			rule: step.rule,
 			params: {
