@@ -158,6 +158,12 @@ export class Ticket {
 		ref: Company.name,
 	})
 	company?: mongoose.Types.ObjectId | Company;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	threadId?: string;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);
