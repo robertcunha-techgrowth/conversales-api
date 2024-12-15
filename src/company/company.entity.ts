@@ -42,6 +42,12 @@ export class Company {
 		default: null,
 	})
 	activationCode?: string;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	keyPix?: string;
 }
 
 export const CompanySchema = SchemaFactory.createFromClass(Company);
