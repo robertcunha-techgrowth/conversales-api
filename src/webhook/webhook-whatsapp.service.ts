@@ -14,8 +14,9 @@ import { SetPropertyStep } from "../step/set-property-step";
 import { CheckoutStep } from "../step/checkout-step";
 import { DetectStep } from "../step/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
-import { PaymentStep } from "../step/payment-step";
+import { PaymentStep } from "../step/payment/domain/payment-step";
 import { ContactInfoStep } from "../step/contact-info-step";
+import { WaitPaymentStep } from "../step/payment/domain/wait-payment.step";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
@@ -92,7 +93,8 @@ export class WebhookWhatsappService extends WebhookService {
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
 		@Inject("StepModel") private readonly stepModel: Model<Step>,
-		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService
+		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService,
+		@Inject(WaitPaymentStep.name) private readonly waitPaymentStep: StepService
 	) {
 		super(
 			ticketModel,
@@ -106,6 +108,7 @@ export class WebhookWhatsappService extends WebhookService {
 				FINISH_CONTACT: finishContactStep,
 				PAYMENT: paymentStep,
 				CONTACT_INFO: contactInfoStep,
+				WAIT_PAYMENT: waitPaymentStep,
 			},
 			"WHATSAPP"
 		);

@@ -14,8 +14,9 @@ import { CheckoutStep } from "../step/checkout-step";
 import { Step } from "../step/step.entity";
 import { DetectStep } from "../step/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
-import { PaymentStep } from "../step/payment-step";
+import { PaymentStep } from "../step/payment/domain/payment-step";
 import { ContactInfoStep } from "../step/contact-info-step";
+import { WaitPaymentStep } from "../step/payment/domain/wait-payment.step";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
@@ -60,7 +61,8 @@ export class WebhookTelegramService extends WebhookService {
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
 		@Inject("StepModel") private readonly stepModel: Model<Step>,
-		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService
+		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService,
+		@Inject(WaitPaymentStep.name) private readonly waitPaymentStep: StepService
 	) {
 		super(
 			ticketModel,
@@ -74,6 +76,7 @@ export class WebhookTelegramService extends WebhookService {
 				FINISH_CONTACT: finishContactStep,
 				PAYMENT: paymentStep,
 				CONTACT_INFO: contactInfoStep,
+				WAIT_PAYMENT: waitPaymentStep,
 			},
 			"TELEGRAM"
 		);
