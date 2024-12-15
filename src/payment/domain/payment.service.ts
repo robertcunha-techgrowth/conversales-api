@@ -1,6 +1,4 @@
 import { Model } from "mongoose";
-import { Inject } from "../common/dependency-injection/inject";
-import { Injectable } from "../common/dependency-injection/injectable";
 import { Payment } from "./payment.entity";
 import { AxiosInstance } from "axios";
 
@@ -51,27 +49,20 @@ export interface EfiPixResponse {
 	pixCopiaECola: string;
 }
 
-@Injectable()
-export class PaymentService {
+export abstract class PaymentDomainService {
 	constructor(
-		@Inject("PaymentModel") private readonly model: Model<Payment>,
-		@Inject("PaymentAxios") private readonly axios: AxiosInstance
+		protected readonly model: Model<Payment>,
+		protected readonly axios: AxiosInstance
 	) {}
 
-	async create(payment: Payment) {
+	protected async createInDatabase(payment: Payment) {
 		const paymentCreated = await this.model.create(payment);
 		return paymentCreated.toObject();
 	}
 
-	async createPayment(
+	abstract create(
 		cobData: CobData,
-		token: string
-	): Promise<EfiPixResponse> {
-		const response = await this.axios.post("/cob", cobData, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-		return response.data;
-	}
+		token: string,
+		ticketId: string
+	): Promise<Payment>;
 }

@@ -2,21 +2,23 @@ import {
 	SecretsManagerClient,
 	GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
-import { OutputTaskInterpretation } from "../chatbot/chatbot";
-import { Injectable } from "../common/dependency-injection/injectable";
-import { Ticket } from "../ticket/ticket.entity";
-import { StepService } from "./step.service";
+import { OutputTaskInterpretation } from "../../../chatbot/chatbot";
+import { Injectable } from "../../../common/dependency-injection/injectable";
+import { Ticket } from "../../../ticket/ticket.entity";
+import { StepService } from "../../step.service";
 import { Model } from "mongoose";
-import { Inject } from "../common/dependency-injection/inject";
-import { Step } from "./step.entity";
-import { PaymentService } from "../payment/payment.service";
+import { Inject } from "../../../common/dependency-injection/inject";
+import { Step } from "../../step.entity";
+import { PixPaymentDomainService } from "../../../payment/domain/pix-payment.service";
+import { PixPayment } from "../../../payment/domain/pix-payment.entity";
 
 @Injectable()
 export class PaymentStep extends StepService {
 	constructor(
 		@Inject("StepModel") stepModel: Model<Step>,
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
-		@Inject(PaymentService.name) private readonly paymentService: PaymentService
+		@Inject(PixPaymentDomainService.name)
+		protected readonly paymentService: PixPaymentDomainService
 	) {
 		super(stepModel, ticketModel);
 	}
@@ -46,7 +48,7 @@ export class PaymentStep extends StepService {
 			return prev + curr.price;
 		}, 0);
 
-		const payment = await this.paymentService.createPayment(
+		const payment = await this.paymentService.create(
 			{
 				calendario: {
 					expiracao: 3600,
@@ -61,13 +63,29 @@ export class PaymentStep extends StepService {
 				chave: process.env.EFI_PIX_KEY as string,
 				solicitacaoPagador: "Pagamento solicitado através do app Conversales.",
 			},
-			token
+			token,
+			ticket._id.toString()
+		);
+
+		await this.ticketModel.findOneAndUpdate(
+			{
+				_id: ticket._id,
+			},
+			{
+				currentStep: step.chainedStep,
+				previousInput: {
+					rule: step.rule,
+					params: {
+						pixCopyAndPaste: (payment as PixPayment).pixCopyAndPaste,
+					},
+				},
+			}
 		);
 
 		return {
 			rule: step.rule,
 			params: {
-				pixCopyAndPaste: payment.pixCopiaECola,
+				pixCopyAndPaste: (payment as PixPayment).pixCopyAndPaste,
 			},
 		};
 	}
