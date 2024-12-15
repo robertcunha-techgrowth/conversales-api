@@ -14,10 +14,11 @@ import { AddProductStep } from "./add-product-step";
 import { CheckoutStep } from "./checkout-step";
 import { DetectStep } from "./detect-step";
 import { FinishContactStep } from "./finish-contact.step";
-import { PaymentStep } from "./payment-step";
-import { PaymentModule } from "../payment/payment.module";
+import { PaymentStep } from "./payment/domain/payment-step";
+import { PaymentModule } from "../payment/infrastructure/payment.module";
 import { ContactInfoStep } from "./contact-info-step";
 import { CompanyModule } from "../company/company.module";
+import { WaitPaymentStep } from "./payment/domain/wait-payment.step";
 
 const StepModelProvider = new FactoryProvider({
 	provide: "StepModel",
@@ -66,6 +67,11 @@ const ContactInfoStepProvider = new ClassProvider({
 	useClass: ContactInfoStep,
 });
 
+const WaitPaymentStepProvider = new ClassProvider({
+	provide: WaitPaymentStep.name,
+	useClass: WaitPaymentStep,
+});
+
 const FinishContactProvider = new ClassProvider({
 	provide: FinishContactStep.name,
 	useClass: FinishContactStep,
@@ -83,6 +89,7 @@ const FinishContactProvider = new ClassProvider({
 		FinishContactProvider,
 		PaymentStepProvider,
 		ContactInfoStepProvider,
+		WaitPaymentStepProvider,
 		DetectStepProvider,
 	],
 	exports: [
@@ -95,6 +102,7 @@ const FinishContactProvider = new ClassProvider({
 		FinishContactProvider,
 		PaymentStepProvider,
 		ContactInfoStepProvider,
+		WaitPaymentStepProvider,
 		DetectStepProvider,
 	],
 })
