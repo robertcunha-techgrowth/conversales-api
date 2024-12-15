@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.2.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.1.0...v1.2.0) (2024-12-04)
+
+
+### Features
+
+* finish contact ([32abe04](https://github.com/Techgrowth-Labs/conversales-api/commit/32abe04ecc5fa49fddc2aecb6d910f1578b2ded9))
+
+## [1.1.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.0.0...v1.1.0) (2024-12-02)
+
+
+### Features
+
+* add product step ([13e7db7](https://github.com/Techgrowth-Labs/conversales-api/commit/13e7db70183538bf2064f0b5632b197678e97d83))
+* checkout step ([130dfed](https://github.com/Techgrowth-Labs/conversales-api/commit/130dfed2c3a7d3191b96c42442a77854cf935726))
+* detect step ([a35a45d](https://github.com/Techgrowth-Labs/conversales-api/commit/a35a45dcd172a3819c96845566816b71eed6372d))
+* intro step ([e39e9fd](https://github.com/Techgrowth-Labs/conversales-api/commit/e39e9fdc546747bc276397dc6b788813b0076549))
+* list product step ([b66413e](https://github.com/Techgrowth-Labs/conversales-api/commit/b66413ef17e6971a9b34a7c85806e89e5b7a91aa))
+* menu entity ([243bb41](https://github.com/Techgrowth-Labs/conversales-api/commit/243bb41c6041e5b7a772c95d4225c06491576f3d))
+* set property step ([7cf9cf6](https://github.com/Techgrowth-Labs/conversales-api/commit/7cf9cf6f5dc6aab6490d2b0cb6dafd8403533968))
+
+
+### Bug Fixes
+
+* add constructor for checkout ([eab9740](https://github.com/Techgrowth-Labs/conversales-api/commit/eab974010fe5b5da964776496196bb4061ae19c6))
+* use type from mongoose instead create new one ([0113d61](https://github.com/Techgrowth-Labs/conversales-api/commit/0113d61188e8aa7a3ed00dbcf0a61785fafe78af))
+
 ## 1.0.0 (2024-11-22)
 
 
