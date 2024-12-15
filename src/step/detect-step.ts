@@ -9,7 +9,7 @@ import { SetPropertyStep } from "./set-property-step";
 import { Step, StepKind } from "./step.entity";
 import { StepService } from "./step.service";
 import { FinishContactStep } from "./finish-contact.step";
-import { PaymentStep } from "./payment-step";
+import { PaymentStep } from "./payment/domain/payment-step";
 import { ContactInfoStep } from "./contact-info-step";
 
 @Injectable()
