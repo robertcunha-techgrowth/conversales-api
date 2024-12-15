@@ -9,7 +9,10 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs18.x
+  runtime: nodejs20.x
+  region: sa-east-1
+  logs:
+    restApi: true
 
 custom:
   scripts:
@@ -19,18 +22,13 @@ custom:
   certificatePath: ${file(./certify.p12)}
 
 functions:
-  api:
-    handler: index.handler
-    events:
-      - httpApi:
-          path: /
-          method: get
   webhook-whatsapp:
     handler: src/webhook/index.whatsapp
     events:
       - httpApi:
           path: /{companyId}/webhook/whatsapp
           method: post
+
   webhook-telegram:
     handler: src/webhook/index.telegram
     timeout: 30
@@ -38,9 +36,20 @@ functions:
       - httpApi:
           path: /{companyId}/webhook/telegram
           method: post
-# package:
-#   include:
-#     - certifies/** # Inclui todos os arquivos na pasta `assets`
+
+  set-webhook:
+    handler: src/webhook/index.setEfiWebhook
+    events:
+      - httpApi:
+          path: /{companyId}/webhook/{hmac}
+          method: post
+
+  pix-webhook:
+    handler: src/webhook/index.pix
+    events:
+      - httpApi:
+          path: /{companyId}/webhook/{hmac}/pix
+          method: post
 
 package:
   include:
