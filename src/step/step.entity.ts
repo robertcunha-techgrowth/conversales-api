@@ -15,6 +15,10 @@ export enum StepKind {
 	FINISH_CONTACT = "FINISH_CONTACT",
 	PAYMENT = "PAYMENT",
 	CONTACT_INFO = "CONTACT_INFO",
+	WAIT_PAYMENT = "WAIT_PAYMENT",
+	// toDo: Webhook payment must be a step kind
+	// the problem is, who is currently step kind, are demanding also the webhook payment
+	// WEBHOOK_PAYMENT = "WEBHOOK_PAYMENT",
 }
 @Schema({
 	timestamps: true,
