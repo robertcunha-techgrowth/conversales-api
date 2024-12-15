@@ -5,6 +5,9 @@ import { WebhookWhatsappData } from "./webhook-whatsapp.service";
 import { Controller } from "../common/dependency-injection/controller.decorator";
 import { TelegramApiGuard } from "../common/auth/telegram-webhook.guard";
 import { MongooseModule } from "../common/database/mongoose.module";
+import { PixWebhookService } from "./pix-webhook-service";
+import { Model } from "mongoose";
+import { Company } from "../company/company.entity";
 
 export type APIGatewayProxyEvent = {
 	pathParameters?: { [key: string]: string | null };
@@ -45,7 +48,10 @@ export class WebhookHandler {
 		@Inject("WebhookTelegram")
 		private readonly webhookTelegram: WebhookService,
 		@Inject("WebhookWhatsapp")
-		private readonly webhookWhatsApp: WebhookService
+		private readonly webhookWhatsApp: WebhookService,
+		@Inject(PixWebhookService.name)
+		private readonly paymentWebhook: PixWebhookService,
+		@Inject("CompanyModel") private readonly companyModel: Model<Company>
 	) {}
 
 	@TelegramApiGuard()
@@ -95,5 +101,53 @@ export class WebhookHandler {
 				}),
 			};
 		}
+	}
+
+	async setEfiWebhook(event: APIGatewayProxyEvent) {
+		const ip = event.headers["x-forwarded-for"];
+		const { hmac, companyId } = event.pathParameters;
+		const company = await this.companyModel.findById(companyId);
+		console.log(`Current HMAC: ${hmac}\nDesired: ${process.env.EFI_HMAC}`);
+		if (!company) {
+			throw {
+				statusCode: 404,
+				message: "Company not found.",
+			};
+		}
+		if (ip !== process.env.EFI_ALLOWED_IP) {
+			console.log(`Current IP: ${ip}\nDesired: ${process.env.EFI_ALLOWED_IP}`);
+			throw {
+				statusCode: 401,
+				message: "Unauthorized",
+			};
+		}
+		if (hmac !== process.env.EFI_HMAC) {
+			throw {
+				statusCode: 401,
+				message: "Unauthorized",
+			};
+		}
+		return "200";
+	}
+
+	async webHookPix(event: APIGatewayProxyEvent) {
+		const ip = event.headers["x-forwarded-for"];
+		const { hmac } = event.pathParameters;
+		const body = JSON.parse(event.body);
+		const { EFI_ALLOWED_IP, EFI_HMAC } = process.env;
+		if (ip !== EFI_ALLOWED_IP) {
+			throw {
+				statusCode: 401,
+				message: "Unauthorized",
+			};
+		}
+		if (hmac !== EFI_HMAC) {
+			throw {
+				statusCode: 401,
+				message: "Unauthorized",
+			};
+		}
+		const { pix } = body;
+		return this.paymentWebhook.run(pix);
 	}
 }
