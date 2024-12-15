@@ -1,16 +1,16 @@
 import { Model } from "mongoose";
-import { Inject } from "../common/dependency-injection/inject";
-import { Injectable } from "../common/dependency-injection/injectable";
-import { Ticket } from "../ticket/ticket.entity";
-import { AddProductStep } from "./add-product-step";
-import { CheckoutStep } from "./checkout-step";
-import { ListProductsStep } from "./list-product-step";
-import { SetPropertyStep } from "./set-property-step";
-import { Step, StepKind } from "./step.entity";
-import { StepService } from "./step.service";
-import { FinishContactStep } from "./finish-contact.step";
-import { PaymentStep } from "./payment/domain/payment-step";
-import { ContactInfoStep } from "./contact-info-step";
+import { Inject } from "../../common/dependency-injection/inject";
+import { Injectable } from "../../common/dependency-injection/injectable";
+import { Ticket } from "../../ticket/ticket.entity";
+import { AddProductStep } from "../add-product-step";
+import { CheckoutStep } from "../checkout-step";
+import { ListProductsStep } from "../list-product-step";
+import { SetPropertyStep } from "../set-property-step";
+import { Step, StepKind } from "../step.entity";
+import { StepService } from "../step.service";
+import { FinishContactStep } from "../finish-contact.step";
+import { PaymentStep } from "../payment/domain/payment-step";
+import { ContactInfoStep } from "../contact-info-step";
 
 @Injectable()
 export class DetectStep extends StepService {
@@ -41,14 +41,14 @@ export class DetectStep extends StepService {
 
 	override async run(ticket: Ticket, text: string) {
 		const option = this.validateText(text);
-		const step = await this.model
+		const step = await this.stepModel
 			.findOne({
 				stepNumber: ticket.currentStep,
 			})
 			.lean();
 		const menuItem = step.menu.items.find((item) => item.key === option);
 		const nextStepNumber = menuItem.stepNumber;
-		const nextStep = await this.model.findOne({
+		const nextStep = await this.stepModel.findOne({
 			stepNumber: nextStepNumber,
 		});
 		ticket.currentStep = nextStepNumber;

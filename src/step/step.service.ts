@@ -5,7 +5,7 @@ import { Step } from "./step.entity";
 
 export abstract class StepService {
 	constructor(
-		protected readonly model: Model<Step>,
+		protected readonly stepModel: Model<Step>,
 		protected readonly ticketModel: Model<Ticket>
 	) {}
 

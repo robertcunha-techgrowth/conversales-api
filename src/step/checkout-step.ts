@@ -22,7 +22,7 @@ export class CheckoutStep extends StepService {
 		ticket: Ticket,
 		_params?: UserMessageParams
 	): Promise<OutputTaskInterpretation> {
-		const step = await this.model.findOne({
+		const step = await this.stepModel.findOne({
 			stepNumber: ticket.currentStep,
 		});
 		const { user, cart } = ticket;

@@ -24,7 +24,7 @@ export class ListProductsStep extends StepService {
 	}
 
 	async run(ticket: Ticket, _text: string): Promise<OutputTaskInterpretation> {
-		const step = await this.model
+		const step = await this.stepModel
 			.findOne({
 				stepNumber: ticket.currentStep,
 			})

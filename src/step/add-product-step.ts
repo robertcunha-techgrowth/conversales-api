@@ -34,7 +34,7 @@ export class AddProductStep extends StepService {
 	}
 
 	async run(ticket: Ticket, text: string) {
-		const step = await this.model.findOne({
+		const step = await this.stepModel.findOne({
 			stepNumber: ticket.currentStep,
 		});
 		const num = this.extractNumber(text);

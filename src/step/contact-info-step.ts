@@ -19,7 +19,7 @@ export class ContactInfoStep extends StepService {
 		ticket: Ticket,
 		text: string
 	): Promise<OutputTaskInterpretation> {
-		const step = await this.model
+		const step = await this.stepModel
 			.findOne({
 				stepNumber: ticket.currentStep,
 			})

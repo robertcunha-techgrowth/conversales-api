@@ -27,7 +27,7 @@ export class PaymentStep extends StepService {
 		ticket: Ticket,
 		_text: string
 	): Promise<OutputTaskInterpretation> {
-		const step = await this.model.findOne({
+		const step = await this.stepModel.findOne({
 			stepNumber: ticket.currentStep,
 		});
 

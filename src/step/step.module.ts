@@ -12,7 +12,7 @@ import { ListProductsStep } from "./list-product-step";
 import { SetPropertyStep } from "./set-property-step";
 import { AddProductStep } from "./add-product-step";
 import { CheckoutStep } from "./checkout-step";
-import { DetectStep } from "./detect-step";
+import { DetectStep } from "./input-user/detect-step";
 import { FinishContactStep } from "./finish-contact.step";
 import { PaymentStep } from "./payment/domain/payment-step";
 import { PaymentModule } from "../payment/infrastructure/payment.module";
