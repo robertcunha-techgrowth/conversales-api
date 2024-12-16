@@ -1,19 +1,20 @@
 import { Model } from "mongoose";
-import { Inject } from "../../common/dependency-injection/inject";
-import { Injectable } from "../../common/dependency-injection/injectable";
-import { Ticket } from "../../ticket/ticket.entity";
-import { AddProductStep } from "../add-product-step";
-import { CheckoutStep } from "../checkout-step";
-import { ListProductsStep } from "../list-product-step";
-import { SetPropertyStep } from "../set-property-step";
-import { Step, StepKind } from "../step.entity";
-import { StepService } from "../step.service";
-import { FinishContactStep } from "../finish-contact.step";
-import { PaymentStep } from "../payment/domain/payment-step";
-import { ContactInfoStep } from "../contact-info-step";
+import { Inject } from "../../../../common/dependency-injection/inject";
+import { Injectable } from "../../../../common/dependency-injection/injectable";
+import { Ticket } from "../../../../ticket/ticket.entity";
+import { AddProductStep } from "../../../add-product-step";
+import { CheckoutStep } from "../../../checkout-step";
+import { ListProductsStep } from "../../../list-product-step";
+import { SetPropertyStep } from "../../../set-property-step";
+import { Step, StepKind } from "../../../step.entity";
+import { StepService } from "../../../step.service";
+import { FinishContactStep } from "../../../finish-contact.step";
+import { PaymentStep } from "../../../payment/domain/payment-step";
+import { ContactInfoStep } from "../../../contact-info-step";
+import { InputUserStep } from "./input-user-step";
 
 @Injectable()
-export class DetectStep extends StepService {
+export class DetectStep extends InputUserStep {
 	private options: Record<string, StepService> = {};
 
 	constructor(
@@ -40,7 +41,7 @@ export class DetectStep extends StepService {
 	}
 
 	override async run(ticket: Ticket, text: string) {
-		const option = this.validateText(text);
+		const option = this.validateInput(text);
 		const step = await this.stepModel
 			.findOne({
 				stepNumber: ticket.currentStep,
@@ -62,7 +63,7 @@ export class DetectStep extends StepService {
 		return runner.run(ticket, text);
 	}
 
-	private validateText(text: string): string {
+	protected override validateInput(text: string): string {
 		if (!text) {
 			throw {
 				statusCode: 400,
