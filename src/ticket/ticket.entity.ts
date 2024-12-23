@@ -164,6 +164,12 @@ export class Ticket {
 		default: null,
 	})
 	threadId?: string;
+
+	@Prop({
+		type: Number,
+		default: null,
+	})
+	rateService?: number;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);
