@@ -16,6 +16,7 @@ export enum StepKind {
 	PAYMENT = "PAYMENT",
 	CONTACT_INFO = "CONTACT_INFO",
 	WAIT_PAYMENT = "WAIT_PAYMENT",
+	RATE_SERVICE = "RATE_SERVICE",
 	// toDo: Webhook payment must be a step kind
 	// the problem is, who is currently step kind, are demanding also the webhook payment
 	// WEBHOOK_PAYMENT = "WEBHOOK_PAYMENT",
