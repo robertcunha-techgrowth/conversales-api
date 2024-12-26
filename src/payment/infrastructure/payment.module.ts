@@ -15,7 +15,7 @@ export const PaymentModelProvider = new FactoryProvider({
 	provide: "PaymentPixModel",
 	useFactory: () => {
 		const model = mongoose.model(Payment.name, PaymentSchema);
-		return model.discriminator(PixPayment.name, PixPaymentSchema);
+		return model.discriminator(PixPayment.name, PixPaymentSchema, "PixPayment");
 	},
 });
 
