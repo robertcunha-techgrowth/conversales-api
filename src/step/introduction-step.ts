@@ -20,6 +20,7 @@ export class IntroStep extends StepService {
 		const step = await this.stepModel
 			.findOne({
 				stepNumber: ticket.currentStep,
+				company: ticket.company,
 			})
 			.lean();
 
