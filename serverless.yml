@@ -6,20 +6,13 @@ frameworkVersion: "3"
 plugins:
   - serverless-plugin-typescript
   - serverless-dotenv-plugin
+  # - serverless-domain-manager
 
 provider:
   name: aws
   runtime: nodejs20.x
   region: sa-east-1
-  logs:
-    restApi: true
-
-custom:
-  scripts:
-    hooks:
-      "before:deploy:deploy": "npm run build"
-      "after:deploy:deploy": "npm run clean"
-  certificatePath: ${file(./certify.p12)}
+  stage: dev
 
 functions:
   webhook-whatsapp:
@@ -41,14 +34,14 @@ functions:
     handler: src/webhook/index.setEfiWebhook
     events:
       - httpApi:
-          path: /{companyId}/webhook/{hmac}
+          path: /webhook/{companyId}/{hmac}
           method: post
 
   pix-webhook:
     handler: src/webhook/index.pix
     events:
       - httpApi:
-          path: /{companyId}/webhook/{hmac}/pix
+          path: /webhook/{companyId}/{hmac}/pix
           method: post
 
 package:
