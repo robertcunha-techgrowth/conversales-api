@@ -1,3 +1,5 @@
+import { Ticket } from "../ticket/ticket.entity";
+
 export interface InputStepParams {}
 
 export interface OutputTaskInterpretation {
@@ -23,6 +25,7 @@ export interface ChatBotHistory {
 export interface ChatBot {
 	getMessageTemplate(
 		rule: string,
-		params: Record<string, any>
+		params: Record<string, any>,
+		ticket: Ticket
 	): Promise<string>;
 }

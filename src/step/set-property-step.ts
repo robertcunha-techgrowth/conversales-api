@@ -19,7 +19,7 @@ export class SetPropertyStep extends StepService {
 		ticket: Ticket,
 		text: string
 	): Promise<OutputTaskInterpretation> {
-		const step = await this.model.findOne({
+		const step = await this.stepModel.findOne({
 			stepNumber: ticket.currentStep,
 		});
 		const { property } = step;

@@ -6,7 +6,7 @@ ConfigModule.forRoot({
 
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { ModuleHandlerTest } from "../common/dependency-injection/module-test";
-import { WebhookHandler } from "./webhook.handler";
+import { APIGatewayProxyEvent, WebhookHandler } from "./webhook.handler";
 import { MongooseModule } from "../common/database/mongoose.module";
 import { WebhookModule } from "./webhook.module";
 import { WebhookTelegramData } from "./webhook-telegram.service";
@@ -25,6 +25,8 @@ import {
 } from "openai/resources/beta/threads/messages";
 import { Ticket } from "../ticket/ticket.entity";
 import { TicketModule } from "../ticket/ticket.module";
+import { Company } from "../company/company.entity";
+import { CompanyModule } from "../company/company.module";
 
 describe("WebhookHandler", () => {
 	let mongoMemoryServer: MongoMemoryServer;
@@ -33,6 +35,7 @@ describe("WebhookHandler", () => {
 	let openai: OpenAI;
 	let telegramAxios: AxiosInstance;
 	let ticketModel: Model<Ticket>;
+	let companyModel: Model<Company>;
 
 	beforeAll(async () => {
 		mongoMemoryServer = await MongoMemoryServer.create();
@@ -52,6 +55,10 @@ describe("WebhookHandler", () => {
 			"TelegramAxios"
 		);
 		ticketModel = module.get<Model<Ticket>>(TicketModule.name, "TicketModel");
+		companyModel = module.get<Model<Company>>(
+			CompanyModule.name,
+			"CompanyModel"
+		);
 	});
 
 	afterEach(async () => {
@@ -137,6 +144,13 @@ describe("WebhookHandler", () => {
 				},
 			};
 
+			const company = await companyModel.create({
+				name: "test",
+				phone: "123456789",
+				email: "teste@teste.com.br",
+				nationalId: "47147456000108",
+			});
+
 			const step: Step = {
 				stepNumber: 1,
 				rule: "None",
@@ -147,13 +161,71 @@ describe("WebhookHandler", () => {
 				// isFirstStep: false,
 				// isFinalStep: false,
 				kind: StepKind.GREETING,
+				company: company._id,
+				detectStepToRedirect: 2,
+				menu: {
+					items: [
+						{
+							key: "1",
+							stepNumber: 2,
+							text: "jaij",
+						},
+					],
+				},
 			};
 			await stepModel.create(step);
+
+			const step2: Step = {
+				stepNumber: 2,
+				rule: "None",
+				kind: StepKind.DETECT_STEP,
+				company: company._id,
+				menu: {
+					items: [
+						{
+							key: "1",
+							stepNumber: 3,
+							text: "jaij",
+						},
+					],
+				},
+			};
+
+			await stepModel.create(step2);
 			// Arrange
-			const event = {
+			const event: APIGatewayProxyEvent = {
 				body: JSON.stringify(webhookTelegramData),
+				pathParameters: {
+					companyId: company._id.toString(),
+				},
 				headers: {
 					"x-telegram-bot-api-secret-token": process.env.API_KEY,
+				},
+				httpMethod: "",
+				isBase64Encoded: false,
+				path: "",
+				resource: "",
+				requestContext: {
+					accountId: "",
+					resourceId: "",
+					stage: "",
+					requestId: "",
+					identity: {
+						cognitoIdentityPoolId: "",
+						accountId: "",
+						cognitoIdentityId: "",
+						caller: "",
+						apiKey: "",
+						sourceIp: "",
+						userAgent: "",
+					},
+					authorizer: {},
+					protocol: "",
+					requestTime: "",
+					requestTimeEpoch: 0,
+					resourcePath: "",
+					httpMethod: "",
+					path: "",
 				},
 			};
 
@@ -236,6 +308,13 @@ describe("WebhookHandler", () => {
 				},
 			};
 
+			const company = await companyModel.create({
+				name: "test",
+				phone: "123456789",
+				email: "teste@teste.com.br",
+				nationalId: "47147456000108",
+			});
+
 			const step: Step = {
 				stepNumber: 1,
 				rule: "None",
@@ -246,13 +325,52 @@ describe("WebhookHandler", () => {
 				// isFirstStep: false,
 				// isFinalStep: false,
 				kind: StepKind.LIST_PRODUCTS,
+				company: company._id,
+				menu: {
+					items: [
+						{
+							key: "1",
+							stepNumber: 2,
+							text: "jaij",
+						},
+					],
+				},
 			};
 			await stepModel.create(step);
 			// Arrange
-			const event = {
+			const event: APIGatewayProxyEvent = {
 				body: JSON.stringify(webhookTelegramData),
+				pathParameters: {
+					companyId: company._id.toString(),
+				},
 				headers: {
 					"x-telegram-bot-api-secret-token": process.env.API_KEY,
+				},
+				httpMethod: "",
+				isBase64Encoded: false,
+				path: "",
+				resource: "",
+				requestContext: {
+					accountId: "",
+					resourceId: "",
+					stage: "",
+					requestId: "",
+					identity: {
+						cognitoIdentityPoolId: "",
+						accountId: "",
+						cognitoIdentityId: "",
+						caller: "",
+						apiKey: "",
+						sourceIp: "",
+						userAgent: "",
+					},
+					authorizer: {},
+					protocol: "",
+					requestTime: "",
+					requestTimeEpoch: 0,
+					resourcePath: "",
+					httpMethod: "",
+					path: "",
 				},
 			};
 
@@ -260,5 +378,7 @@ describe("WebhookHandler", () => {
 
 			await controller.telegram(event);
 		});
+
+		it("CONTACT_INFO_STEP should return 200", async () => {});
 	});
 });

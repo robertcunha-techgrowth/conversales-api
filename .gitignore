@@ -12,3 +12,5 @@ dist
 .env
 
 *.p12
+
+*.crt

@@ -19,9 +19,10 @@ export class FinishContactStep extends StepService {
 		ticket: Ticket,
 		_text: string
 	): Promise<OutputTaskInterpretation> {
-		const step = await this.model
+		const step = await this.stepModel
 			.findOne({
 				stepNumber: ticket.currentStep,
+				company: ticket.company,
 			})
 			.lean();
 		await this.ticketModel.findOneAndUpdate(

@@ -2,7 +2,7 @@ import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
-import { WebhookData, WebhookService } from "./webhook.service";
+import { FindIdParams, WebhookData, WebhookService } from "./webhook.service";
 import { ChatBot, InputStepParams } from "../chatbot/chatbot";
 import { Channel } from "../channel/channel";
 import { IntroStep } from "../step/introduction-step";
@@ -12,8 +12,12 @@ import { AddProductStep } from "../step/add-product-step";
 import { SetPropertyStep } from "../step/set-property-step";
 import { CheckoutStep } from "../step/checkout-step";
 import { Step } from "../step/step.entity";
-import { DetectStep } from "../step/detect-step";
+import { DetectStep } from "../step/input-user/application/use-cases/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
+import { PaymentStep } from "../step/payment/domain/payment-step";
+import { ContactInfoStep } from "../step/contact-info-step";
+import { WaitPaymentStep } from "../step/payment/domain/wait-payment.step";
+import { RateServiceStep } from "../step/input-user/application/use-cases/rate-service-step";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
@@ -31,8 +35,20 @@ export interface WebhookTelegramData extends WebhookData {
 	};
 }
 
+export interface FindIdParamsTelegram extends FindIdParams {
+	message: {
+		chat: {
+			id: string;
+		};
+	};
+}
+
 @Injectable()
 export class WebhookTelegramService extends WebhookService {
+	protected override findId(data: FindIdParamsTelegram): string {
+		return data.message.chat.id.toString();
+	}
+
 	constructor(
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
 		@Inject(IntroStep.name) normalStep: StepService,
@@ -42,9 +58,13 @@ export class WebhookTelegramService extends WebhookService {
 		@Inject(CheckoutStep.name) checkoutStep: StepService,
 		@Inject(DetectStep.name) detectStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
-		@Inject("Chatbot") private readonly chatbot: ChatBot,
-		@Inject("Channel") private readonly channel: Channel,
-		@Inject("StepModel") private readonly stepModel: Model<Step>
+		@Inject(PaymentStep.name) paymentStep: StepService,
+		@Inject("Chatbot") chatbot: ChatBot,
+		@Inject("Channel") channel: Channel,
+		@Inject("StepModel") stepModel: Model<Step>,
+		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService,
+		@Inject(WaitPaymentStep.name) private readonly waitPaymentStep: StepService,
+		@Inject(RateServiceStep.name) private readonly rateServiceStep: StepService
 	) {
 		super(
 			ticketModel,
@@ -56,33 +76,45 @@ export class WebhookTelegramService extends WebhookService {
 				CHECKOUT: checkoutStep,
 				DETECT_STEP: detectStep,
 				FINISH_CONTACT: finishContactStep,
+				PAYMENT: paymentStep,
+				CONTACT_INFO: contactInfoStep,
+				WAIT_PAYMENT: waitPaymentStep,
+				RATE_SERVICE: rateServiceStep,
 			},
+			chatbot,
+			stepModel,
+			channel,
 			"TELEGRAM"
 		);
 	}
 
-	override async webhook(data: WebhookTelegramData) {
+	override async webhook(data: WebhookTelegramData, companyId: string) {
 		const { text } = data.message;
 
-		const { id } = data.message.chat;
+		const id = this.findId(data);
 
-		const ticket = await this.getTicket(id.toString());
+		const ticket = await this.getTicket(id.toString(), companyId);
+
+		const { company } = ticket;
 
 		const step = await this.stepModel.findOne({
 			stepNumber: ticket.currentStep,
+			company,
 		});
 
 		const { kind } = step;
 
 		try {
 			const { rule, params } = await this.steps[kind].run(ticket, text);
-			await this.sendMessage(rule, params, id);
+			await this.sendMessage(rule, params, id, ticket);
 			return ticket;
 		} catch (err) {
+			console.log(err);
 			await this.sendMessage(
 				`Atenção: a regra a seguir deve vir acompanhada de uma mensagem informando ao usuário que o bot não entendeu a opção digitada. \n${ticket.previousInput.rule}`,
 				ticket.previousInput?.params,
-				id
+				id,
+				ticket
 			);
 			return ticket;
 		}
@@ -91,9 +123,10 @@ export class WebhookTelegramService extends WebhookService {
 	private async sendMessage(
 		rule: string,
 		params: InputStepParams,
-		from: string
+		from: string,
+		ticket: Ticket
 	) {
-		const message = await this.chatbot.getMessageTemplate(rule, params);
+		const message = await this.chatbot.getMessageTemplate(rule, params, ticket);
 		await this.channel.sendMessage(from, message);
 	}
 }

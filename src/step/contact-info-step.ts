@@ -5,10 +5,9 @@ import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
 import { Step } from "./step.entity";
 import { StepService } from "./step.service";
-import { MenuItem } from "../menu/menu.entity";
 
 @Injectable()
-export class IntroStep extends StepService {
+export class ContactInfoStep extends StepService {
 	constructor(
 		@Inject("StepModel") stepModel: Model<Step>,
 		@Inject("TicketModel") ticketModel: Model<Ticket>
@@ -16,41 +15,31 @@ export class IntroStep extends StepService {
 		super(stepModel, ticketModel);
 	}
 
-	async run(ticket: Ticket, _text: string): Promise<OutputTaskInterpretation> {
+	override async run(
+		ticket: Ticket,
+		text: string
+	): Promise<OutputTaskInterpretation> {
 		const step = await this.stepModel
 			.findOne({
 				stepNumber: ticket.currentStep,
-				company: ticket.company,
 			})
 			.lean();
 
-		const menu = step.menu.items.reduce<Record<number, MenuItem>>(
-			(prev, item, index) => {
-				prev[index + 1] = item;
-				return prev;
-			},
-			{}
-		);
+		const { company } = ticket;
 
-		await this.ticketModel.findOneAndUpdate(
-			{
-				_id: ticket._id,
-			},
-			{
-				currentStep: step.detectStepToRedirect,
-				previousInput: {
-					rule: step.rule,
-					params: {
-						menu,
-					},
+		if (!company) {
+			throw {
+				statusCode: 400,
+				body: {
+					message: "Company information is missing.",
 				},
-			}
-		);
+			};
+		}
 
 		return {
 			rule: step.rule,
 			params: {
-				menu,
+				company: company,
 			},
 		};
 	}

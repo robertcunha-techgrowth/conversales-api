@@ -18,13 +18,13 @@ export class ListProductsStep extends StepService {
 		@Inject(ProductService.name)
 		private readonly productService: ProductService,
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
-		@Inject("StepModel") private readonly stepModel: Model<Step>
+		@Inject("StepModel") stepModel: Model<Step>
 	) {
 		super(stepModel, ticketModel);
 	}
 
 	async run(ticket: Ticket, _text: string): Promise<OutputTaskInterpretation> {
-		const step = await this.model
+		const step = await this.stepModel
 			.findOne({
 				stepNumber: ticket.currentStep,
 			})

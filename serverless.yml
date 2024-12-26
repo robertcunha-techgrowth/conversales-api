@@ -6,38 +6,44 @@ frameworkVersion: "3"
 plugins:
   - serverless-plugin-typescript
   - serverless-dotenv-plugin
+  # - serverless-domain-manager
 
 provider:
   name: aws
-  runtime: nodejs18.x
-
-custom:
-  scripts:
-    hooks:
-      "before:deploy:deploy": "npm run build"
-      "after:deploy:deploy": "npm run clean"
+  runtime: nodejs20.x
+  region: sa-east-1
+  stage: dev
 
 functions:
-  api:
-    handler: index.handler
-    events:
-      - httpApi:
-          path: /
-          method: get
   webhook-whatsapp:
     handler: src/webhook/index.whatsapp
     events:
       - httpApi:
-          path: /webhook/whatsapp
+          path: /{companyId}/webhook/whatsapp
           method: post
+
   webhook-telegram:
     handler: src/webhook/index.telegram
     timeout: 30
     events:
       - httpApi:
-          path: /webhook/telegram
+          path: /{companyId}/webhook/telegram
+          method: post
+
+  set-webhook:
+    handler: src/webhook/index.setEfiWebhook
+    events:
+      - httpApi:
+          path: /webhook/{companyId}/{hmac}
+          method: post
+
+  pix-webhook:
+    handler: src/webhook/index.pix
+    events:
+      - httpApi:
+          path: /webhook/{companyId}/{hmac}/pix
           method: post
 
 package:
   include:
-    - certifies/** # Inclui todos os arquivos na pasta `assets`
+    - certify.p12

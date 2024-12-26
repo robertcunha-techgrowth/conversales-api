@@ -8,6 +8,9 @@ import { StepModule } from "../step/step.module";
 import { ProductModule } from "../product/product.module";
 import { ChatGptModule } from "../chatbot/chatgpt/chatgpt.module";
 import { TelegramModule } from "../channel/telegram/telegram.module";
+import { CompanyModule } from "../company/company.module";
+import { PaymentModule } from "../payment/infrastructure/payment.module";
+import { PixWebhookService } from "./pix-webhook-service";
 const WebhookControllerProvider = new ClassProvider({
 	provide: "WebhookHandler",
 	useClass: WebhookHandler,
@@ -23,6 +26,11 @@ const WebhookTelegramServiceProvider = new ClassProvider({
 	useClass: WebhookTelegramService,
 });
 
+const PixWebhookServiceProvider = new ClassProvider({
+	provide: PixWebhookService.name,
+	useClass: PixWebhookService,
+});
+
 @ModuleHandler({
 	imports: [
 		TicketModule,
@@ -30,11 +38,15 @@ const WebhookTelegramServiceProvider = new ClassProvider({
 		ProductModule,
 		ChatGptModule,
 		TelegramModule,
+		CompanyModule,
+		PaymentModule,
+		CompanyModule,
 	],
 	// controllers: [WebhookControllerProvider],
 	providers: [
 		WebhookWhatsappServiceProvider,
 		WebhookTelegramServiceProvider,
+		PixWebhookServiceProvider,
 		WebhookControllerProvider,
 	],
 	exports: [],

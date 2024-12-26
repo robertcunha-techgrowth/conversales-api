@@ -6,6 +6,7 @@ import { SchemaFactory } from "../common/database/schema.factory";
 import { Prop } from "../common/database/prop.decorator";
 import { ChatBotHistory, InputStepParams } from "../chatbot/chatbot";
 import { StepKind } from "../step/step.entity";
+import { Company, CompanySchema } from "../company/company.entity";
 
 export enum StatusTicket {
 	Active = "ACTIVE",
@@ -151,6 +152,30 @@ export class Ticket {
 		rule: string;
 		params: InputStepParams;
 	};
+
+	@Prop({
+		type: mongoose.Types.ObjectId,
+		ref: Company.name,
+	})
+	company?: mongoose.Types.ObjectId | Company;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	threadId?: string;
+
+	@Prop({
+		type: Number,
+		default: null,
+	})
+	rateService?: number;
+
+	@Prop({
+		type: Date,
+		default: null,
+	})
+	lastResponse?: Date;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);
