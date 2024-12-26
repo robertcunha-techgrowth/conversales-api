@@ -18,7 +18,7 @@ export class ListProductsStep extends StepService {
 		@Inject(ProductService.name)
 		private readonly productService: ProductService,
 		@Inject("TicketModel") ticketModel: Model<Ticket>,
-		@Inject("StepModel") private readonly stepModel: Model<Step>
+		@Inject("StepModel") stepModel: Model<Step>
 	) {
 		super(stepModel, ticketModel);
 	}
