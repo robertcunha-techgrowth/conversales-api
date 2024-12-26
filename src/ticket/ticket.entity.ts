@@ -170,6 +170,12 @@ export class Ticket {
 		default: null,
 	})
 	rateService?: number;
+
+	@Prop({
+		type: Date,
+		default: null,
+	})
+	lastResponse?: Date;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);
