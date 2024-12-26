@@ -29,21 +29,25 @@ export class PixWebhookService {
 
 	private async executePayment(value: EndToEndPix) {
 		const payment = await this.paymentModel.findOneAndUpdate(
-			{ endToEndId: value.endToEndId },
+			{ txid: value.txid },
 			{
 				status: PaymentStatus.PAID,
 			},
 			{
 				new: true,
-				populate: [
-					{
-						path: "ticket",
-					},
-				],
+				// populate: [
+				// 	{
+				// 		path: "ticket",
+				// 	},
+				// ],
 			}
 		);
 
-		const ticket = payment.ticket as Ticket;
+		const ticketId = payment.ticket;
+
+		const ticket = await this.ticketModel.findOne({
+			_id: ticketId,
+		});
 
 		const step = await this.stepModel.findOne({
 			kind: "WEBHOOK_PIX_PAYMENT",
