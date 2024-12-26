@@ -12,6 +12,7 @@ export enum PaymentStatus {
 
 @Schema({
 	timestamps: true,
+	discriminatorKey: "kind",
 })
 export class Payment {
 	@Prop({
