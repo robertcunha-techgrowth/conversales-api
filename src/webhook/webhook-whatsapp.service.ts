@@ -91,9 +91,9 @@ export class WebhookWhatsappService extends WebhookService {
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
 		@Inject(PaymentStep.name) paymentStep: StepService,
 		// @Inject("StepModel") private readonly stepModel: Model<Step>,
-		@Inject("Chatbot") private readonly chatbot: ChatBot,
-		@Inject("Channel") private readonly channel: Channel,
-		@Inject("StepModel") private readonly stepModel: Model<Step>,
+		@Inject("Chatbot") chatbot: ChatBot,
+		@Inject("Channel") channel: Channel,
+		@Inject("StepModel") stepModel: Model<Step>,
 		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService,
 		@Inject(WaitPaymentStep.name) private readonly waitPaymentStep: StepService,
 		@Inject(RateServiceStep.name) private readonly rateServiceStep: StepService
@@ -113,6 +113,9 @@ export class WebhookWhatsappService extends WebhookService {
 				WAIT_PAYMENT: waitPaymentStep,
 				RATE_SERVICE: rateServiceStep,
 			},
+			chatbot,
+			stepModel,
+			channel,
 			"WHATSAPP"
 		);
 	}
