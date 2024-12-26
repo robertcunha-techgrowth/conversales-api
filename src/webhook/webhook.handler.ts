@@ -70,7 +70,6 @@ export class WebhookHandler {
 	async whatsapp(event: APIGatewayProxyEvent) {
 		await MongooseModule.forRoot(process.env.MONGO_URI);
 		try {
-			XApiKeyGuard.canActivate(event);
 			const body = JSON.parse(event.body) as WebhookWhatsappData;
 			const { companyId } = event.pathParameters;
 
@@ -149,5 +148,10 @@ export class WebhookHandler {
 		}
 		const { pix } = body;
 		return this.paymentWebhook.run(pix);
+	}
+
+	async retryContact(event: APIGatewayProxyEvent) {
+		const { ticketId } = event.pathParameters;
+		return this.webhookTelegram.retryContact(ticketId);
 	}
 }
