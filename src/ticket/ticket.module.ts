@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import { ModuleHandler } from "../common/dependency-injection/module";
-import { FactoryProvider } from "../common/dependency-injection/provider";
+import {
+	ClassProvider,
+	FactoryProvider,
+} from "../common/dependency-injection/provider";
 import { Ticket, TicketSchema } from "./ticket.entity";
 
 const TicketModelProvider = new FactoryProvider({
@@ -9,6 +12,16 @@ const TicketModelProvider = new FactoryProvider({
 		return mongoose.model(Ticket.name, TicketSchema);
 	},
 });
+
+// const TicketServiceProvider = new ClassProvider({
+// 	provide: TicketService.name,
+// 	useClass: TicketService,
+// });
+
+// const TicketHandlerProvider = new ClassProvider({
+// 	provide: TicketHandler.name,
+// 	useClass: TicketHandler,
+// });
 
 @ModuleHandler({
 	providers: [TicketModelProvider],

@@ -8,6 +8,8 @@ import { MongooseModule } from "../common/database/mongoose.module";
 import { PixWebhookService } from "./pix-webhook-service";
 import { Model } from "mongoose";
 import { Company } from "../company/company.entity";
+import { IsString } from "class-validator";
+import { Ticket } from "../ticket/ticket.entity";
 
 export type APIGatewayProxyEvent = {
 	pathParameters?: { [key: string]: string | null };
@@ -42,6 +44,19 @@ export type APIGatewayProxyEvent = {
 	};
 };
 
+export enum Channels {
+	WHATSAPP = "WHATSAPP",
+	TELEGRAM = "TELEGRAM",
+}
+
+export class RetryContactPathParamsDto {
+	@IsString()
+	ticketId: string;
+
+	@IsString()
+	channel: string;
+}
+
 @Controller()
 export class WebhookHandler {
 	constructor(
@@ -51,13 +66,12 @@ export class WebhookHandler {
 		private readonly webhookWhatsApp: WebhookService,
 		@Inject(PixWebhookService.name)
 		private readonly paymentWebhook: PixWebhookService,
-		@Inject("CompanyModel") private readonly companyModel: Model<Company>
+		@Inject("CompanyModel") private readonly companyModel: Model<Company>,
+		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>
 	) {}
 
 	@TelegramApiGuard()
 	async telegram(event: APIGatewayProxyEvent) {
-		// toDo: this connection must be performed by module
-		// await MongooseModule.forRoot(process.env.MONGO_URI);
 		const body = JSON.parse(event.body);
 		const { companyId } = event.pathParameters;
 		await this.webhookTelegram.webhook(body, companyId);
@@ -108,22 +122,26 @@ export class WebhookHandler {
 		const company = await this.companyModel.findById(companyId);
 		console.log(`Current HMAC: ${hmac}\nDesired: ${process.env.EFI_HMAC}`);
 		if (!company) {
-			throw {
+			return {
 				statusCode: 404,
 				message: "Company not found.",
 			};
 		}
 		if (ip !== process.env.EFI_ALLOWED_IP) {
 			console.log(`Current IP: ${ip}\nDesired: ${process.env.EFI_ALLOWED_IP}`);
-			throw {
+			return {
 				statusCode: 401,
-				message: "Unauthorized",
+				body: JSON.stringify({
+					message: "Unauthorized",
+				}),
 			};
 		}
 		if (hmac !== process.env.EFI_HMAC) {
-			throw {
+			return {
 				statusCode: 401,
-				message: "Unauthorized",
+				body: JSON.stringify({
+					message: "Unauthorized",
+				}),
 			};
 		}
 		return "200";
@@ -135,23 +153,51 @@ export class WebhookHandler {
 		const body = JSON.parse(event.body);
 		const { EFI_ALLOWED_IP, EFI_HMAC } = process.env;
 		if (ip !== EFI_ALLOWED_IP) {
-			throw {
+			return {
 				statusCode: 401,
-				message: "Unauthorized",
+				body: JSON.stringify({
+					message: "Unauthorized",
+				}),
 			};
 		}
 		if (hmac !== EFI_HMAC) {
-			throw {
+			return {
 				statusCode: 401,
-				message: "Unauthorized",
+				body: JSON.stringify({
+					message: "Unauthorized",
+				}),
 			};
 		}
 		const { pix } = body;
 		return this.paymentWebhook.run(pix);
 	}
 
+	@XApiKeyGuard()
 	async retryContact(event: APIGatewayProxyEvent) {
-		const { ticketId } = event.pathParameters;
+		const { ticketId, channel } =
+			event.pathParameters as unknown as RetryContactPathParamsDto;
+
+		if (channel === Channels.WHATSAPP) {
+			return this.webhookWhatsApp.retryContact(ticketId);
+		}
+
 		return this.webhookTelegram.retryContact(ticketId);
+	}
+
+	@XApiKeyGuard()
+	async findTickets(event: APIGatewayProxyEvent) {
+		const { filter, options } = event.queryStringParameters ?? {
+			filter: JSON.stringify({}),
+			options: JSON.stringify({}),
+		};
+		const tickets = await this.ticketModel.find(
+			JSON.parse(filter),
+			null,
+			JSON.parse(options)
+		);
+		return {
+			statusCode: 200,
+			body: JSON.stringify(tickets),
+		};
 	}
 }

@@ -18,9 +18,9 @@ const { providers } = moduleMetadata.getModuleMetadata(WebhookModule.name);
 
 const handler: WebhookHandler = providers["WebhookHandler"];
 
-// console.log(handler);
-
 export const whatsapp = handler.whatsapp.bind(handler);
 export const telegram = handler.telegram.bind(handler);
 export const setEfiWebhook = handler.setEfiWebhook.bind(handler);
 export const pix = handler.webHookPix.bind(handler);
+export const retryContact = handler.retryContact.bind(handler);
+export const findTickets = handler.findTickets.bind(handler);
