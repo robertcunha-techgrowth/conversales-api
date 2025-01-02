@@ -44,6 +44,28 @@ functions:
           path: /webhook/{companyId}/{hmac}/pix
           method: post
 
+  retry-contact:
+    handler: src/webhook/index.retryContact
+    events:
+      - httpApi:
+          path: /retry-contact/{channel}/{ticketId}
+          method: post
+
+  find-tickets:
+    handler: src/webhook/index.findTickets
+    events:
+      - httpApi:
+          path: /ticket
+          method: get
+
+  # find-all-tickets:
+  #   handler: src/ticket/index.findAll
+  #   events:
+  #     - httpApi:
+  #         path: /ticket
+  #         method: get
+
 package:
+  # individually: true
   include:
     - certify.p12
