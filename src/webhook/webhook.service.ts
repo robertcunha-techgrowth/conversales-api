@@ -61,20 +61,40 @@ export abstract class WebhookService {
 
 	protected abstract findId(data: FindIdParams): string;
 
-	async retryContact(ticketId: string) {
-		const ticket = await this.ticketModel.findById(ticketId);
-		if (!ticket) {
-			throw new Error("Ticket not found");
+	async retryContact(ticket: Ticket) {
+		if (ticket.retryCount > 0) {
+			const message = await this.chatbot.getMessageTemplate(
+				`O cliente está ausente. Crie uma mensagem chamando ele de volta para a conversa e respeite a regra a seguir. ${ticket.previousInput.rule}`,
+				ticket.previousInput.params,
+				ticket
+			);
+
+			await this.channel.sendMessage(ticket.from, message);
+			await this.ticketModel.findOneAndUpdate(
+				{
+					_id: ticket._id,
+				},
+				{
+					$inc: { retryCount: -1 },
+				}
+			);
+			return ticket;
 		}
 
-		const message = await await this.chatbot.getMessageTemplate(
-			`Você deve restabelecer o contato, pois há algum tempo que o cliente não responde. Também siga a regra abaixo\n${ticket.previousInput.rule}`,
-			ticket.previousInput.params,
+		const message = await this.chatbot.getMessageTemplate(
+			`Encerre o contato por ausência do cliente.`,
+			{},
 			ticket
 		);
-
 		await this.channel.sendMessage(message, ticket.from);
-
+		await this.ticketModel.findOneAndUpdate(
+			{
+				_id: ticket._id,
+			},
+			{
+				status: StatusTicket.Abandoned,
+			}
+		);
 		return ticket;
 	}
 }

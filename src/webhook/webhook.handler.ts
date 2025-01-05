@@ -1,4 +1,5 @@
 import { WebhookService } from "./webhook.service";
+import nodemailer from "nodemailer";
 import { Inject } from "../common/dependency-injection/inject";
 import { XApiKeyGuard } from "../common/auth/x-api-key.guard";
 import { WebhookWhatsappData } from "./webhook-whatsapp.service";
@@ -10,6 +11,7 @@ import { Model } from "mongoose";
 import { Company } from "../company/company.entity";
 import { IsString } from "class-validator";
 import { Ticket } from "../ticket/ticket.entity";
+import { ContactMessage } from "../contact-message/contact-message.entity";
 
 export type APIGatewayProxyEvent = {
 	pathParameters?: { [key: string]: string | null };
@@ -52,9 +54,6 @@ export enum Channels {
 export class RetryContactPathParamsDto {
 	@IsString()
 	ticketId: string;
-
-	@IsString()
-	channel: string;
 }
 
 @Controller()
@@ -67,7 +66,9 @@ export class WebhookHandler {
 		@Inject(PixWebhookService.name)
 		private readonly paymentWebhook: PixWebhookService,
 		@Inject("CompanyModel") private readonly companyModel: Model<Company>,
-		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>
+		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>,
+		@Inject("ContactMessageModel")
+		private readonly contactMessageModel: Model<ContactMessage>
 	) {}
 
 	@TelegramApiGuard()
@@ -174,30 +175,64 @@ export class WebhookHandler {
 
 	@XApiKeyGuard()
 	async retryContact(event: APIGatewayProxyEvent) {
-		const { ticketId, channel } =
-			event.pathParameters as unknown as RetryContactPathParamsDto;
+		const { ticketId } = event.pathParameters;
 
-		if (channel === Channels.WHATSAPP) {
-			return this.webhookWhatsApp.retryContact(ticketId);
+		const ticket = await this.ticketModel.findById(ticketId).lean();
+
+		if (!ticket) {
+			throw new Error("Ticket not found");
 		}
 
-		return this.webhookTelegram.retryContact(ticketId);
+		const { channel } = ticket;
+
+		if (channel === Channels.WHATSAPP) {
+			await this.webhookWhatsApp.retryContact(ticket);
+			return {
+				status: 200,
+				body: JSON.stringify(ticket),
+			};
+		}
+
+		await this.webhookTelegram.retryContact(ticket);
+		return {
+			status: 200,
+			body: JSON.stringify(ticket),
+		};
 	}
 
 	@XApiKeyGuard()
 	async findTickets(event: APIGatewayProxyEvent) {
-		const { filter, options } = event.queryStringParameters ?? {
-			filter: JSON.stringify({}),
-			options: JSON.stringify({}),
-		};
-		const tickets = await this.ticketModel.find(
-			JSON.parse(filter),
-			null,
-			JSON.parse(options)
-		);
+		console.log(event.queryStringParameters);
+		const { filter, options } = event.queryStringParameters;
+		const tickets = await this.ticketModel
+			.find(
+				JSON.parse(filter ?? JSON.stringify({})),
+				null,
+				JSON.parse(options ?? JSON.stringify({}))
+			)
+			.lean();
+		const count = await this.ticketModel.countDocuments();
 		return {
 			statusCode: 200,
-			body: JSON.stringify(tickets),
+			body: JSON.stringify({
+				documents: tickets,
+				count,
+			}),
+		};
+	}
+
+	@XApiKeyGuard()
+	async sendMessage(event: APIGatewayProxyEvent) {
+		const { message, name, email } = JSON.parse(event.body);
+
+		await this.contactMessageModel.create({
+			message,
+			name,
+			email,
+		});
+
+		return {
+			status: "SUCCESS",
 		};
 	}
 }

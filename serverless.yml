@@ -13,6 +13,7 @@ provider:
   runtime: nodejs20.x
   region: sa-east-1
   stage: dev
+  # profile: serverless
 
 functions:
   webhook-whatsapp:
@@ -46,9 +47,10 @@ functions:
 
   retry-contact:
     handler: src/webhook/index.retryContact
+    timeout: 30
     events:
       - httpApi:
-          path: /retry-contact/{channel}/{ticketId}
+          path: /retry-contact/{ticketId}
           method: post
 
   find-tickets:
@@ -57,6 +59,13 @@ functions:
       - httpApi:
           path: /ticket
           method: get
+
+  send-contact-message:
+    handler: src/webhook/index.sendContactMessage
+    events:
+      - httpApi:
+          path: /send-contact-message
+          method: post
 
   # find-all-tickets:
   #   handler: src/ticket/index.findAll
@@ -69,3 +78,11 @@ package:
   # individually: true
   include:
     - certify.p12
+# custom:
+#   customDomain:
+#     domainName: api.conversales.techgrowth-labs.com.br
+
+#     endpointType: REGIONAL
+
+#     apiType: http
+#     certificateArn: arn:aws:acm:sa-east-1:779846802300:certificate/18c6ffb0-e642-471a-bd7e-2b749c00cc9b

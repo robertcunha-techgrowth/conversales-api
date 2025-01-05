@@ -24,3 +24,4 @@ export const setEfiWebhook = handler.setEfiWebhook.bind(handler);
 export const pix = handler.webHookPix.bind(handler);
 export const retryContact = handler.retryContact.bind(handler);
 export const findTickets = handler.findTickets.bind(handler);
+export const sendContactMessage = handler.sendMessage.bind(handler);
