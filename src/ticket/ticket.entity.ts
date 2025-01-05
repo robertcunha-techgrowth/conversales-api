@@ -6,12 +6,13 @@ import { SchemaFactory } from "../common/database/schema.factory";
 import { Prop } from "../common/database/prop.decorator";
 import { ChatBotHistory, InputStepParams } from "../chatbot/chatbot";
 import { StepKind } from "../step/step.entity";
-import { Company, CompanySchema } from "../company/company.entity";
+import { Company } from "../company/company.entity";
 
 export enum StatusTicket {
 	Active = "ACTIVE",
 	Buyed = "BUYED",
 	Closed = "CLOSED",
+	Abandoned = "ABANDONED",
 }
 
 @Schema({
