@@ -25,19 +25,15 @@ export class SetPropertyStep extends StepService {
 		const { property } = step;
 		const value = await this[property](text);
 		ticket.user[property] = value;
-		await this.ticketModel.findOneAndUpdate(
-			{
-				_id: ticket._id,
+
+		await this.updateTicket(ticket._id.toString(), {
+			user: ticket.user,
+			currentStep: step.chainedStep,
+			previousInput: {
+				rule: step.rule,
+				params: {},
 			},
-			{
-				user: ticket.user,
-				currentStep: step.chainedStep,
-				previousInput: {
-					rule: step.rule,
-					params: {},
-				},
-			}
-		);
+		});
 		return {
 			rule: step.rule,
 		};
@@ -73,6 +69,18 @@ export class SetPropertyStep extends StepService {
 				statusCode: 400,
 				body: {
 					message: "Email is required.",
+				},
+			};
+		}
+		return value;
+	}
+
+	private async cellphone(value: string) {
+		if (!value) {
+			throw {
+				statusCode: 400,
+				body: {
+					message: "Cellphone is required.",
 				},
 			};
 		}

@@ -44,42 +44,29 @@ export class CheckoutStep extends StepService {
 			};
 		}
 
-		await this.ticketModel.findOneAndUpdate(
-			{
-				_id: ticket._id,
+		const params = {
+			user: user,
+			products: cart.map((product) => {
+				return {
+					name: product.name,
+					price: product.price,
+					description: product.description,
+				};
+			}),
+			total: cart.reduce((acc, product) => acc + product.price, 0),
+		};
+
+		await this.updateTicket(ticket._id.toString(), {
+			currentStep: step.chainedStep,
+			previousInput: {
+				rule: step.rule,
+				params,
 			},
-			{
-				currentStep: step.chainedStep,
-				previousInput: {
-					rule: step.rule,
-					params: {
-						user: user,
-						products: cart.map((product) => {
-							return {
-								name: product.name,
-								price: product.price,
-								description: product.description,
-							};
-						}),
-						total: cart.reduce((acc, product) => acc + product.price, 0),
-					},
-				},
-			}
-		);
+		});
 
 		return {
 			rule: step.rule,
-			params: {
-				user: user,
-				products: cart.map((product) => {
-					return {
-						name: product.name,
-						price: product.price,
-						description: product.description,
-					};
-				}),
-				total: cart.reduce((acc, product) => acc + product.price, 0),
-			},
+			params,
 		};
 	}
 }

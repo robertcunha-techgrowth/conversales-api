@@ -30,6 +30,20 @@ export class ListProductsStep extends StepService {
 			})
 			.lean();
 		const products = await this.productService.findAll();
+
+		const params = {
+			menu: products.reduce<
+				Record<number, { name: string; price: number; description: string }>
+			>((prev, product) => {
+				prev[product.num] = {
+					name: product.name,
+					price: product.price,
+					description: product.description,
+				};
+				return prev;
+			}, {}),
+		};
+
 		await this.ticketModel.findOneAndUpdate(
 			{
 				_id: ticket._id,
@@ -39,39 +53,14 @@ export class ListProductsStep extends StepService {
 				currentStep: step.chainedStep,
 				previousInput: {
 					rule: step.rule,
-					params: {
-						menu: products.reduce<
-							Record<
-								number,
-								{ name: string; price: number; description: string }
-							>
-						>((prev, product) => {
-							prev[product.num] = {
-								name: product.name,
-								price: product.price,
-								description: product.description,
-							};
-							return prev;
-						}, {}),
-					},
+					params,
 				},
 			}
 		);
 
 		return {
 			rule: step.rule,
-			params: {
-				menu: products.reduce<
-					Record<number, { name: string; price: number; description: string }>
-				>((prev, product) => {
-					prev[product.num] = {
-						name: product.name,
-						price: product.price,
-						description: product.description,
-					};
-					return prev;
-				}, {}),
-			},
+			params,
 		};
 	}
 }

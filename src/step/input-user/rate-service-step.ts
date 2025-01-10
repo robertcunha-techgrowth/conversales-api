@@ -1,9 +1,9 @@
 import { Model } from "mongoose";
-import { OutputTaskInterpretation } from "../../../../chatbot/chatbot";
-import { Inject } from "../../../../common/dependency-injection/inject";
-import { StatusTicket, Ticket } from "../../../../ticket/ticket.entity";
-import { Step } from "../../../step.entity";
-import { Injectable } from "../../../../common/dependency-injection/injectable";
+import { OutputTaskInterpretation } from "../../chatbot/chatbot";
+import { Inject } from "../../common/dependency-injection/inject";
+import { StatusTicket, Ticket } from "../../ticket/ticket.entity";
+import { Step } from "../step.entity";
+import { Injectable } from "../../common/dependency-injection/injectable";
 import { InputUserStep } from "./input-user-step";
 
 @Injectable()

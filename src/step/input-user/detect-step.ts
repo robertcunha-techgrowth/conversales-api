@@ -1,16 +1,16 @@
 import { Model } from "mongoose";
-import { Inject } from "../../../../common/dependency-injection/inject";
-import { Injectable } from "../../../../common/dependency-injection/injectable";
-import { Ticket } from "../../../../ticket/ticket.entity";
-import { AddProductStep } from "../../../add-product-step";
-import { CheckoutStep } from "../../../checkout-step";
-import { ListProductsStep } from "../../../list-product-step";
-import { SetPropertyStep } from "../../../set-property-step";
-import { Step, StepKind } from "../../../step.entity";
-import { StepService } from "../../../step.service";
-import { FinishContactStep } from "../../../finish-contact.step";
-import { PaymentStep } from "../../../payment/domain/payment-step";
-import { ContactInfoStep } from "../../../contact-info-step";
+import { Inject } from "../../common/dependency-injection/inject";
+import { Injectable } from "../../common/dependency-injection/injectable";
+import { Ticket } from "../../ticket/ticket.entity";
+import { AddProductStep } from "../add-product-step";
+import { CheckoutStep } from "../checkout-step";
+import { ListProductsStep } from "../list-product-step";
+import { SetPropertyStep } from "../set-property-step";
+import { Step, StepKind } from "../step.entity";
+import { StepService } from "../step.service";
+import { FinishContactStep } from "../finish-contact.step";
+import { PaymentStep } from "../payment/domain/payment-step";
+import { ContactInfoStep } from "../contact-info-step";
 import { InputUserStep } from "./input-user-step";
 
 @Injectable()

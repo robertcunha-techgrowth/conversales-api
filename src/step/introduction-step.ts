@@ -32,20 +32,15 @@ export class IntroStep extends StepService {
 			{}
 		);
 
-		await this.ticketModel.findOneAndUpdate(
-			{
-				_id: ticket._id,
-			},
-			{
-				currentStep: step.detectStepToRedirect,
-				previousInput: {
-					rule: step.rule,
-					params: {
-						menu,
-					},
+		await this.updateTicket(ticket._id.toString(), {
+			currentStep: step.chainedStep,
+			previousInput: {
+				rule: step.rule,
+				params: {
+					menu,
 				},
-			}
-		);
+			},
+		});
 
 		return {
 			rule: step.rule,

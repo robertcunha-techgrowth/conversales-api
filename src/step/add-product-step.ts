@@ -50,40 +50,29 @@ export class AddProductStep extends StepService {
 			};
 		}
 
-		await this.ticketModel.findOneAndUpdate(
-			{
-				_id: ticket._id,
+		const params = {
+			product: {
+				num: product.num,
+				name: product.name,
+				price: product.price,
+				description: product.description,
 			},
-			{
-				$push: {
-					cart: product,
-				},
+		};
 
-				currentStep: step.chainedStep,
-				previousInput: {
-					rule: step.rule,
-					params: {
-						product: {
-							num: product.num,
-							name: product.name,
-							price: product.price,
-							description: product.description,
-						},
-					},
-				},
-			}
-		);
+		await this.updateTicket(ticket._id.toString(), {
+			$push: {
+				cart: product,
+			},
+			currentStep: step.chainedStep,
+			previousInput: {
+				rule: step.rule,
+				params,
+			},
+		});
 
 		return {
 			rule: step.rule,
-			params: {
-				product: {
-					num: product.num,
-					name: product.name,
-					price: product.price,
-					description: product.description,
-				},
-			},
+			params,
 		};
 	}
 }
