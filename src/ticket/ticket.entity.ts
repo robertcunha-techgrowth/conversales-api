@@ -183,6 +183,12 @@ export class Ticket {
 		default: null,
 	})
 	lastResponse?: Date;
+
+	@Prop({
+		type: Boolean,
+		default: true,
+	})
+	sendNotify?: boolean;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);

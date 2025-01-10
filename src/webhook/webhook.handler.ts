@@ -120,7 +120,6 @@ export class WebhookHandler {
 		const ip = event.headers["x-forwarded-for"];
 		const { hmac, companyId } = event.pathParameters;
 		const company = await this.companyModel.findById(companyId);
-		console.log(`Current HMAC: ${hmac}\nDesired: ${process.env.EFI_HMAC}`);
 		if (!company) {
 			return {
 				statusCode: 404,
@@ -130,7 +129,7 @@ export class WebhookHandler {
 		if (ip !== process.env.EFI_ALLOWED_IP) {
 			console.log(`Current IP: ${ip}\nDesired: ${process.env.EFI_ALLOWED_IP}`);
 			return {
-				statusCode: 401,
+				status: 401,
 				body: JSON.stringify({
 					message: "Unauthorized",
 				}),
@@ -138,7 +137,7 @@ export class WebhookHandler {
 		}
 		if (hmac !== process.env.EFI_HMAC) {
 			return {
-				statusCode: 401,
+				status: 401,
 				body: JSON.stringify({
 					message: "Unauthorized",
 				}),
@@ -154,7 +153,7 @@ export class WebhookHandler {
 		const { EFI_ALLOWED_IP, EFI_HMAC } = process.env;
 		if (ip !== EFI_ALLOWED_IP) {
 			return {
-				statusCode: 401,
+				status: 401,
 				body: JSON.stringify({
 					message: "Unauthorized",
 				}),
@@ -162,7 +161,7 @@ export class WebhookHandler {
 		}
 		if (hmac !== EFI_HMAC) {
 			return {
-				statusCode: 401,
+				status: 401,
 				body: JSON.stringify({
 					message: "Unauthorized",
 				}),

@@ -77,6 +77,7 @@ export class PaymentStep extends StepService {
 				rule: step.rule,
 				params,
 			},
+			sendNotify: false,
 		});
 
 		return {
