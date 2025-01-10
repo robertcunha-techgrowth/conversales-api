@@ -48,6 +48,12 @@ export class Company {
 		default: null,
 	})
 	keyPix?: string;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	cellphone?: string;
 }
 
 export const CompanySchema = SchemaFactory.createFromClass(Company);
