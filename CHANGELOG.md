@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.3.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.2.0...v1.3.0) (2025-01-10)
+
+
+### Features
+
+* company ([9bd2383](https://github.com/Techgrowth-Labs/conversales-api/commit/9bd2383cea7ad3626bade76e083a4e91e45733f4))
+* contact info ([680d532](https://github.com/Techgrowth-Labs/conversales-api/commit/680d5324654930755f24f7dcba2f0c1f37f5162a))
+* contact message ([12e4b6f](https://github.com/Techgrowth-Labs/conversales-api/commit/12e4b6ff7c733e9f325296378abc1fb76384835a))
+* create company dto ([22f089a](https://github.com/Techgrowth-Labs/conversales-api/commit/22f089a245b5a53c36c8269f8ccdf978df4a302d))
+* message from website and retry ([0988acc](https://github.com/Techgrowth-Labs/conversales-api/commit/0988accd2c4693c1b19b4204435b9f4243ed74c9))
+* notify ([d1b9fc5](https://github.com/Techgrowth-Labs/conversales-api/commit/d1b9fc5a47a31fe210c70959aa388ec0dc076064))
+* payment step ([a91698f](https://github.com/Techgrowth-Labs/conversales-api/commit/a91698f3215a049f68fd9f7b0f6a01a4b4618ed3))
+* rate step ([74f357e](https://github.com/Techgrowth-Labs/conversales-api/commit/74f357ed0bed87262e3d2de1db651e6bbb957093))
+* retry contact ([1684fd6](https://github.com/Techgrowth-Labs/conversales-api/commit/1684fd6475f3b01d1a713108593d76e3ef525921))
+* ticket handler ([ea19a22](https://github.com/Techgrowth-Labs/conversales-api/commit/ea19a223c850d8ec4e1816b3c7a0550eb2c29a27))
+
+
+### Bug Fixes
+
+* add next step ([aed1b97](https://github.com/Techgrowth-Labs/conversales-api/commit/aed1b9783917d43f9c43e9d806d42a639277adf4))
+* using /cob instead /pix ([0336da0](https://github.com/Techgrowth-Labs/conversales-api/commit/0336da02b6bbfdcfb61e8b524360ca9bd52c07be))
+
 ## [1.2.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.1.0...v1.2.0) (2024-12-04)
 
 
