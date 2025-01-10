@@ -37,6 +37,12 @@ export class UserOnTicket {
 	})
 	email?: string;
 
+	@Prop({
+		type: String,
+		default: null,
+	})
+	cellphone?: string;
+
 	[key: string]: any;
 }
 
@@ -88,7 +94,7 @@ export class Ticket {
 
 	@Prop({
 		type: Number,
-		default: () => 10,
+		default: () => 3,
 	})
 	retryCount?: number;
 
