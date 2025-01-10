@@ -67,26 +67,22 @@ export class PaymentStep extends StepService {
 			ticket._id.toString()
 		);
 
-		await this.ticketModel.findOneAndUpdate(
-			{
-				_id: ticket._id,
+		const params = {
+			pixCopyAndPaste: (payment as PixPayment).pixCopyAndPaste,
+		};
+
+		await this.updateTicket(ticket._id.toString(), {
+			currentStep: step.chainedStep,
+			previousInput: {
+				rule: step.rule,
+				params,
 			},
-			{
-				currentStep: step.chainedStep,
-				previousInput: {
-					rule: step.rule,
-					params: {
-						pixCopyAndPaste: (payment as PixPayment).pixCopyAndPaste,
-					},
-				},
-			}
-		);
+			sendNotify: false,
+		});
 
 		return {
 			rule: step.rule,
-			params: {
-				pixCopyAndPaste: (payment as PixPayment).pixCopyAndPaste,
-			},
+			params,
 		};
 	}
 }

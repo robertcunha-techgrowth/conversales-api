@@ -8,6 +8,7 @@ import { Channel } from "../channel/channel";
 import { ChatBot } from "../chatbot/chatbot";
 import { Ticket } from "../ticket/ticket.entity";
 import { Step, StepKind } from "../step/step.entity";
+import { Notify, NotifyWhatsapp } from "../notify/notify";
 
 @Injectable()
 export class PixWebhookService {
@@ -17,7 +18,8 @@ export class PixWebhookService {
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
 		@Inject("StepModel") private readonly stepModel: Model<Step>,
-		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>
+		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>,
+		@Inject(NotifyWhatsapp.name) private readonly notifyWhatsapp: Notify
 	) {}
 
 	async run(pix: EndToEndPix[]) {
@@ -35,11 +37,6 @@ export class PixWebhookService {
 			},
 			{
 				new: true,
-				// populate: [
-				// 	{
-				// 		path: "ticket",
-				// 	},
-				// ],
 			}
 		);
 
@@ -71,6 +68,20 @@ export class PixWebhookService {
 			}
 		);
 
+		const message = this.formatMessage(ticket);
+
+		await this.notifyWhatsapp.notify(ticket.user.cellphone, message);
+
 		return ticket;
+	}
+
+	private formatMessage(ticket: Ticket) {
+		return `${ticket.cart
+			.map((item) => `${item.name}`)
+			.join("\n")} foi vendido. Dados da venda:\nNome:${
+			ticket.user.name
+		}\n$CNPJ:${ticket.user.nationalId}\n$Email:${
+			ticket.user.email
+		}\n$Telefone:${ticket.user.cellphone}`;
 	}
 }

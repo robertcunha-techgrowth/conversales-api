@@ -6,12 +6,13 @@ import { SchemaFactory } from "../common/database/schema.factory";
 import { Prop } from "../common/database/prop.decorator";
 import { ChatBotHistory, InputStepParams } from "../chatbot/chatbot";
 import { StepKind } from "../step/step.entity";
-import { Company, CompanySchema } from "../company/company.entity";
+import { Company } from "../company/company.entity";
 
 export enum StatusTicket {
 	Active = "ACTIVE",
 	Buyed = "BUYED",
 	Closed = "CLOSED",
+	Abandoned = "ABANDONED",
 }
 
 @Schema({
@@ -35,6 +36,12 @@ export class UserOnTicket {
 		default: null,
 	})
 	email?: string;
+
+	@Prop({
+		type: String,
+		default: null,
+	})
+	cellphone?: string;
 
 	[key: string]: any;
 }
@@ -87,7 +94,7 @@ export class Ticket {
 
 	@Prop({
 		type: Number,
-		default: () => 10,
+		default: () => 3,
 	})
 	retryCount?: number;
 
@@ -176,6 +183,12 @@ export class Ticket {
 		default: null,
 	})
 	lastResponse?: Date;
+
+	@Prop({
+		type: Boolean,
+		default: true,
+	})
+	sendNotify?: boolean;
 }
 
 export const TicketSchema = SchemaFactory.createFromClass(Ticket);

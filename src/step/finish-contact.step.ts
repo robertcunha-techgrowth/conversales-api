@@ -25,14 +25,10 @@ export class FinishContactStep extends StepService {
 				company: ticket.company,
 			})
 			.lean();
-		await this.ticketModel.findOneAndUpdate(
-			{
-				_id: ticket._id,
-			},
-			{
-				status: StatusTicket.Closed,
-			}
-		);
+
+		await this.updateTicket(ticket._id.toString(), {
+			status: StatusTicket.Closed,
+		});
 		return {
 			params: {},
 			rule: step.rule,

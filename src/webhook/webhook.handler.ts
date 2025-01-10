@@ -8,6 +8,9 @@ import { MongooseModule } from "../common/database/mongoose.module";
 import { PixWebhookService } from "./pix-webhook-service";
 import { Model } from "mongoose";
 import { Company } from "../company/company.entity";
+import { IsString } from "class-validator";
+import { StatusTicket, Ticket } from "../ticket/ticket.entity";
+import { ContactMessage } from "../contact-message/contact-message.entity";
 
 export type APIGatewayProxyEvent = {
 	pathParameters?: { [key: string]: string | null };
@@ -42,6 +45,16 @@ export type APIGatewayProxyEvent = {
 	};
 };
 
+export enum Channels {
+	WHATSAPP = "WHATSAPP",
+	TELEGRAM = "TELEGRAM",
+}
+
+export class RetryContactPathParamsDto {
+	@IsString()
+	ticketId: string;
+}
+
 @Controller()
 export class WebhookHandler {
 	constructor(
@@ -51,13 +64,14 @@ export class WebhookHandler {
 		private readonly webhookWhatsApp: WebhookService,
 		@Inject(PixWebhookService.name)
 		private readonly paymentWebhook: PixWebhookService,
-		@Inject("CompanyModel") private readonly companyModel: Model<Company>
+		@Inject("CompanyModel") private readonly companyModel: Model<Company>,
+		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>,
+		@Inject("ContactMessageModel")
+		private readonly contactMessageModel: Model<ContactMessage>
 	) {}
 
 	@TelegramApiGuard()
 	async telegram(event: APIGatewayProxyEvent) {
-		// toDo: this connection must be performed by module
-		// await MongooseModule.forRoot(process.env.MONGO_URI);
 		const body = JSON.parse(event.body);
 		const { companyId } = event.pathParameters;
 		await this.webhookTelegram.webhook(body, companyId);
@@ -106,24 +120,27 @@ export class WebhookHandler {
 		const ip = event.headers["x-forwarded-for"];
 		const { hmac, companyId } = event.pathParameters;
 		const company = await this.companyModel.findById(companyId);
-		console.log(`Current HMAC: ${hmac}\nDesired: ${process.env.EFI_HMAC}`);
 		if (!company) {
-			throw {
+			return {
 				statusCode: 404,
 				message: "Company not found.",
 			};
 		}
 		if (ip !== process.env.EFI_ALLOWED_IP) {
 			console.log(`Current IP: ${ip}\nDesired: ${process.env.EFI_ALLOWED_IP}`);
-			throw {
-				statusCode: 401,
-				message: "Unauthorized",
+			return {
+				status: 401,
+				body: JSON.stringify({
+					message: "Unauthorized",
+				}),
 			};
 		}
 		if (hmac !== process.env.EFI_HMAC) {
-			throw {
-				statusCode: 401,
-				message: "Unauthorized",
+			return {
+				status: 401,
+				body: JSON.stringify({
+					message: "Unauthorized",
+				}),
 			};
 		}
 		return "200";
@@ -135,23 +152,90 @@ export class WebhookHandler {
 		const body = JSON.parse(event.body);
 		const { EFI_ALLOWED_IP, EFI_HMAC } = process.env;
 		if (ip !== EFI_ALLOWED_IP) {
-			throw {
-				statusCode: 401,
-				message: "Unauthorized",
+			return {
+				status: 401,
+				body: JSON.stringify({
+					message: "Unauthorized",
+				}),
 			};
 		}
 		if (hmac !== EFI_HMAC) {
-			throw {
-				statusCode: 401,
-				message: "Unauthorized",
+			return {
+				status: 401,
+				body: JSON.stringify({
+					message: "Unauthorized",
+				}),
 			};
 		}
 		const { pix } = body;
 		return this.paymentWebhook.run(pix);
 	}
 
+	@XApiKeyGuard()
 	async retryContact(event: APIGatewayProxyEvent) {
 		const { ticketId } = event.pathParameters;
-		return this.webhookTelegram.retryContact(ticketId);
+
+		const ticket = await this.ticketModel
+			.findOne({
+				_id: ticketId,
+				status: StatusTicket.Active,
+			})
+			.lean();
+
+		if (!ticket) {
+			throw new Error("Ticket not found");
+		}
+
+		const { channel } = ticket;
+
+		if (channel === Channels.WHATSAPP) {
+			await this.webhookWhatsApp.retryContact(ticket);
+			return {
+				status: 200,
+				body: JSON.stringify(ticket),
+			};
+		}
+
+		await this.webhookTelegram.retryContact(ticket);
+		return {
+			status: 200,
+			body: JSON.stringify(ticket),
+		};
+	}
+
+	@XApiKeyGuard()
+	async findTickets(event: APIGatewayProxyEvent) {
+		const { filter, options } = event.queryStringParameters;
+		const filterParsed = JSON.parse(filter ?? JSON.stringify({}));
+		const tickets = await this.ticketModel
+			.find(
+				JSON.parse(filter ?? JSON.stringify({})),
+				null,
+				JSON.parse(options ?? JSON.stringify({}))
+			)
+			.lean();
+		const count = await this.ticketModel.countDocuments(filterParsed);
+		return {
+			statusCode: 200,
+			body: JSON.stringify({
+				documents: tickets,
+				count,
+			}),
+		};
+	}
+
+	@XApiKeyGuard()
+	async sendMessage(event: APIGatewayProxyEvent) {
+		const { message, name, email } = JSON.parse(event.body);
+
+		await this.contactMessageModel.create({
+			message,
+			name,
+			email,
+		});
+
+		return {
+			status: "SUCCESS",
+		};
 	}
 }

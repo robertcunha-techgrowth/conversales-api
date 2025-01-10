@@ -12,12 +12,12 @@ import { AddProductStep } from "../step/add-product-step";
 import { SetPropertyStep } from "../step/set-property-step";
 import { CheckoutStep } from "../step/checkout-step";
 import { Step } from "../step/step.entity";
-import { DetectStep } from "../step/input-user/application/use-cases/detect-step";
+import { DetectStep } from "../step/input-user/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
 import { PaymentStep } from "../step/payment/domain/payment-step";
 import { ContactInfoStep } from "../step/contact-info-step";
 import { WaitPaymentStep } from "../step/payment/domain/wait-payment.step";
-import { RateServiceStep } from "../step/input-user/application/use-cases/rate-service-step";
+import { RateServiceStep } from "../step/input-user/rate-service-step";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
