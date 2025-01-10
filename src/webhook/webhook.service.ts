@@ -86,7 +86,7 @@ export abstract class WebhookService {
 			{},
 			ticket
 		);
-		await this.channel.sendMessage(message, ticket.from);
+		await this.channel.sendMessage(ticket.from, message);
 		await this.ticketModel.findOneAndUpdate(
 			{
 				_id: ticket._id,

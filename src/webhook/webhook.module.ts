@@ -12,6 +12,7 @@ import { CompanyModule } from "../company/company.module";
 import { PaymentModule } from "../payment/infrastructure/payment.module";
 import { PixWebhookService } from "./pix-webhook-service";
 import { ContactMessageModule } from "../contact-message/contact-message.module";
+import { NotifyModule } from "../notify/notify.module";
 const WebhookControllerProvider = new ClassProvider({
 	provide: "WebhookHandler",
 	useClass: WebhookHandler,
@@ -43,6 +44,7 @@ const PixWebhookServiceProvider = new ClassProvider({
 		PaymentModule,
 		CompanyModule,
 		ContactMessageModule,
+		NotifyModule,
 	],
 	// controllers: [WebhookControllerProvider],
 	providers: [
