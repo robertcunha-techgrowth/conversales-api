@@ -12,14 +12,14 @@ import { ListProductsStep } from "./list-product-step";
 import { SetPropertyStep } from "./set-property-step";
 import { AddProductStep } from "./add-product-step";
 import { CheckoutStep } from "./checkout-step";
-import { DetectStep } from "./input-user/application/use-cases/detect-step";
+import { DetectStep } from "./input-user/detect-step";
 import { FinishContactStep } from "./finish-contact.step";
 import { PaymentStep } from "./payment/domain/payment-step";
 import { PaymentModule } from "../payment/infrastructure/payment.module";
 import { ContactInfoStep } from "./contact-info-step";
 import { CompanyModule } from "../company/company.module";
 import { WaitPaymentStep } from "./payment/domain/wait-payment.step";
-import { RateServiceStep } from "./input-user/application/use-cases/rate-service-step";
+import { RateServiceStep } from "./input-user/rate-service-step";
 
 const StepModelProvider = new FactoryProvider({
 	provide: "StepModel",

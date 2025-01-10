@@ -1,5 +1,4 @@
 import { WebhookService } from "./webhook.service";
-import nodemailer from "nodemailer";
 import { Inject } from "../common/dependency-injection/inject";
 import { XApiKeyGuard } from "../common/auth/x-api-key.guard";
 import { WebhookWhatsappData } from "./webhook-whatsapp.service";
@@ -10,7 +9,7 @@ import { PixWebhookService } from "./pix-webhook-service";
 import { Model } from "mongoose";
 import { Company } from "../company/company.entity";
 import { IsString } from "class-validator";
-import { Ticket } from "../ticket/ticket.entity";
+import { StatusTicket, Ticket } from "../ticket/ticket.entity";
 import { ContactMessage } from "../contact-message/contact-message.entity";
 
 export type APIGatewayProxyEvent = {
@@ -177,7 +176,12 @@ export class WebhookHandler {
 	async retryContact(event: APIGatewayProxyEvent) {
 		const { ticketId } = event.pathParameters;
 
-		const ticket = await this.ticketModel.findById(ticketId).lean();
+		const ticket = await this.ticketModel
+			.findOne({
+				_id: ticketId,
+				status: StatusTicket.Active,
+			})
+			.lean();
 
 		if (!ticket) {
 			throw new Error("Ticket not found");
@@ -202,8 +206,8 @@ export class WebhookHandler {
 
 	@XApiKeyGuard()
 	async findTickets(event: APIGatewayProxyEvent) {
-		console.log(event.queryStringParameters);
 		const { filter, options } = event.queryStringParameters;
+		const filterParsed = JSON.parse(filter ?? JSON.stringify({}));
 		const tickets = await this.ticketModel
 			.find(
 				JSON.parse(filter ?? JSON.stringify({})),
@@ -211,7 +215,7 @@ export class WebhookHandler {
 				JSON.parse(options ?? JSON.stringify({}))
 			)
 			.lean();
-		const count = await this.ticketModel.countDocuments();
+		const count = await this.ticketModel.countDocuments(filterParsed);
 		return {
 			statusCode: 200,
 			body: JSON.stringify({

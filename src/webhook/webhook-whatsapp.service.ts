@@ -12,12 +12,12 @@ import { IntroStep } from "../step/introduction-step";
 import { ListProductsStep } from "../step/list-product-step";
 import { SetPropertyStep } from "../step/set-property-step";
 import { CheckoutStep } from "../step/checkout-step";
-import { DetectStep } from "../step/input-user/application/use-cases/detect-step";
+import { DetectStep } from "../step/input-user/detect-step";
 import { FinishContactStep } from "../step/finish-contact.step";
 import { PaymentStep } from "../step/payment/domain/payment-step";
 import { ContactInfoStep } from "../step/contact-info-step";
 import { WaitPaymentStep } from "../step/payment/domain/wait-payment.step";
-import { RateServiceStep } from "../step/input-user/application/use-cases/rate-service-step";
+import { RateServiceStep } from "../step/input-user/rate-service-step";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
