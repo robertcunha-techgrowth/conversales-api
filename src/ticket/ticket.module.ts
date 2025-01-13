@@ -13,16 +13,6 @@ const TicketModelProvider = new FactoryProvider({
 	},
 });
 
-// const TicketServiceProvider = new ClassProvider({
-// 	provide: TicketService.name,
-// 	useClass: TicketService,
-// });
-
-// const TicketHandlerProvider = new ClassProvider({
-// 	provide: TicketHandler.name,
-// 	useClass: TicketHandler,
-// });
-
 @ModuleHandler({
 	providers: [TicketModelProvider],
 	exports: [TicketModelProvider],
