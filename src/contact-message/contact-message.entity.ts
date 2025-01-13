@@ -28,7 +28,7 @@ export class ContactMessage {
 		type: Boolean,
 		default: false,
 	})
-	isReaded: boolean;
+	isReaded?: boolean;
 }
 
 export const ContactMessageSchema =
