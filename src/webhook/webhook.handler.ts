@@ -224,18 +224,19 @@ export class WebhookHandler {
 		};
 	}
 
-	@XApiKeyGuard()
 	async sendMessage(event: APIGatewayProxyEvent) {
-		const { message, name, email } = JSON.parse(event.body);
-
-		await this.contactMessageModel.create({
-			message,
-			name,
-			email,
-		});
+		await this.contactMessageModel.create(JSON.parse(event.body));
 
 		return {
-			status: "SUCCESS",
+			headers: {
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Credentials": false,
+			},
+			statusCode: 200,
+			status: 200,
+			body: JSON.stringify({
+				message: "Message sent successfully",
+			}),
 		};
 	}
 }
