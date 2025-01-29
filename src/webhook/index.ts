@@ -1,6 +1,5 @@
 require("events").EventEmitter.defaultMaxListeners = 20;
 import { ConfigModule } from "../common/config/config.module";
-import { MongooseModule } from "../common/database/mongoose.module";
 ConfigModule.forRoot({
 	envFilePath: ".env",
 	isGlobal: true,
@@ -9,8 +8,6 @@ ConfigModule.forRoot({
 import { ModuleMetadata } from "../common/dependency-injection/module-metadata";
 import { WebhookHandler } from "./webhook.handler";
 import { WebhookModule } from "./webhook.module";
-
-MongooseModule.forRoot(process.env.MONGO_URI);
 
 const moduleMetadata = new ModuleMetadata();
 
@@ -25,3 +22,4 @@ export const pix = handler.webHookPix.bind(handler);
 export const retryContact = handler.retryContact.bind(handler);
 export const findTickets = handler.findTickets.bind(handler);
 export const sendContactMessage = handler.sendMessage.bind(handler);
+export const whatsappValidation = handler.whatsappValidation.bind(handler);
