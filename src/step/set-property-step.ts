@@ -4,7 +4,7 @@ import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
 import { StepService } from "./step.service";
 import { OutputTaskInterpretation, InputStepParams } from "../chatbot/chatbot";
-import { Step, StepKind } from "./step.entity";
+import { Step } from "./step.entity";
 
 export interface SetPropertyUserMessageParams extends InputStepParams {
 	property: string;
@@ -52,7 +52,8 @@ export class SetPropertyStep extends StepService {
 	}
 
 	private async nationalId(value: string) {
-		if (!value) {
+		const nationalId = value.replace(/\D/g, "");
+		if (!nationalId) {
 			throw {
 				statusCode: 400,
 				body: {
@@ -60,7 +61,7 @@ export class SetPropertyStep extends StepService {
 				},
 			};
 		}
-		return value;
+		return nationalId;
 	}
 
 	private async email(value: string) {
@@ -76,7 +77,8 @@ export class SetPropertyStep extends StepService {
 	}
 
 	private async cellphone(value: string) {
-		if (!value) {
+		const cellphone = value.replace(/\D/g, "");
+		if (!cellphone) {
 			throw {
 				statusCode: 400,
 				body: {
@@ -84,7 +86,7 @@ export class SetPropertyStep extends StepService {
 				},
 			};
 		}
-		return value;
+		return cellphone;
 	}
 
 	constructor(
