@@ -23,7 +23,7 @@ export interface ChatBotHistory {
 }
 
 export interface ChatBot {
-	getMessageTemplate(
+	getAIResponseText(
 		rule: string,
 		params: Record<string, any>,
 		ticket: Ticket
