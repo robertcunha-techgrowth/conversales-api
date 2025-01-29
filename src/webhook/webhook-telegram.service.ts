@@ -95,38 +95,6 @@ export class WebhookTelegramService extends WebhookService {
 
 		const ticket = await this.getTicket(id.toString(), companyId);
 
-		const { company } = ticket;
-
-		const step = await this.stepModel.findOne({
-			stepNumber: ticket.currentStep,
-			company,
-		});
-
-		const { kind } = step;
-
-		try {
-			const { rule, params } = await this.steps[kind].run(ticket, text);
-			await this.sendMessage(rule, params, id, ticket);
-			return ticket;
-		} catch (err) {
-			console.log(err);
-			await this.sendMessage(
-				`Atenção: a regra a seguir deve vir acompanhada de uma mensagem informando ao usuário que o bot não entendeu a opção digitada. \n${ticket.previousInput.rule}`,
-				ticket.previousInput?.params,
-				id,
-				ticket
-			);
-			return ticket;
-		}
-	}
-
-	private async sendMessage(
-		rule: string,
-		params: InputStepParams,
-		from: string,
-		ticket: Ticket
-	) {
-		const message = await this.chatbot.getMessageTemplate(rule, params, ticket);
-		await this.channel.sendMessage(from, message);
+		return this.runStepForTicket(ticket, text);
 	}
 }

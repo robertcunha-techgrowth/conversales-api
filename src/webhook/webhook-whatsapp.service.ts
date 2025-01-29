@@ -157,26 +157,4 @@ export class WebhookWhatsappService extends WebhookService {
 			message,
 		};
 	}
-
-	private async runStepForTicket(ticket: Ticket, message: string) {
-		const step = await this.stepModel.findOne({
-			stepNumber: ticket.currentStep,
-		});
-		const { kind } = step;
-		try {
-			const { rule, params } = await this.steps[kind].run(ticket, message);
-			console.log(`Rule: ${rule}\nParams: ${params}`);
-			await this.sendMessage(rule, params, ticket.from, ticket);
-			return ticket;
-		} catch (err) {
-			console.log(err);
-			await this.sendMessage(
-				`Atenção: a regra a seguir deve vir acompanhada de uma mensagem informando ao usuário que o bot não entendeu a opção digitada. \n${ticket.previousInput.rule}`,
-				ticket.previousInput?.params,
-				ticket.from,
-				ticket
-			);
-			return ticket;
-		}
-	}
 }
