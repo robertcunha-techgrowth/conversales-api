@@ -12,10 +12,37 @@ provider:
   runtime: nodejs20.x
   region: sa-east-1
   stage: dev
+  httpApi:
+    cors:
+      allowedOrigins:
+        - "*"
+      allowCredentials: false
+      allowedMethods:
+        - OPTIONS
+        - GET
+        - POST
+      allowedHeaders:
+        - Content-Type
+        - x-api-key
 
 functions:
+  hello:
+    handler: index.handler
+    events:
+      - httpApi:
+          path: /
+          method: get
+
+  webhook-whatsapp-validation:
+    handler: src/webhook/index.whatsappValidation
+    events:
+      - httpApi:
+          path: /{companyId}/webhook/whatsapp
+          method: get
+
   webhook-whatsapp:
     handler: src/webhook/index.whatsapp
+    timeout: 30
     events:
       - httpApi:
           path: /{companyId}/webhook/whatsapp
@@ -64,10 +91,6 @@ functions:
       - httpApi:
           path: /send-contact-message
           method: post
-          cors:
-            allowedOrigins:
-              - "*"
-            allowCredentials: false
 
 package:
   include:
