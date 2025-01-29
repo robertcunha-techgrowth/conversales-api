@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.3.0...v1.4.0) (2025-01-29)
+
+
+### Features
+
+* validations for cnpj and cellphone ([ba40ba3](https://github.com/Techgrowth-Labs/conversales-api/commit/ba40ba3afd014c3db1fb8f3e768899ebfe031bcc))
+* whatsapp validation ([d310ed3](https://github.com/Techgrowth-Labs/conversales-api/commit/d310ed34408fe67e681e17cf2560d88cbfc008f3))
+
+
+### Bug Fixes
+
+* is readed option ([af9a7cc](https://github.com/Techgrowth-Labs/conversales-api/commit/af9a7cc3b9ec8bed1ff9bf886c3691a655df6821))
+
 ## [1.3.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.2.0...v1.3.0) (2025-01-10)
 
 
