@@ -72,6 +72,7 @@ export class WebhookHandler {
 
 	@TelegramApiGuard()
 	async telegram(event: APIGatewayProxyEvent) {
+		await MongooseModule.forRoot(process.env.MONGO_URI);
 		const body = JSON.parse(event.body);
 		const { companyId } = event.pathParameters;
 		await this.webhookTelegram.webhook(body, companyId);
@@ -81,14 +82,42 @@ export class WebhookHandler {
 		};
 	}
 
+	async whatsappValidation(event: APIGatewayProxyEvent) {
+		const VERIFY_TOKEN = "your_verify_token"; // Substitua pelo seu token de verificação
+
+		const mode = event.queryStringParameters["hub.mode"];
+		const token = event.queryStringParameters["hub.verify_token"];
+		const challenge = event.queryStringParameters["hub.challenge"];
+
+		if (mode && token) {
+			if (mode === "subscribe" && token === VERIFY_TOKEN) {
+				console.log("Webhook verificado com sucesso!");
+				return {
+					statusCode: 200,
+					status: 200,
+					body: challenge,
+				};
+			} else {
+				return {
+					statusCode: 403,
+					status: 403,
+				};
+			}
+		}
+		return {
+			statusCode: 400,
+			status: 400,
+		};
+	}
+
 	async whatsapp(event: APIGatewayProxyEvent) {
-		await MongooseModule.forRoot(process.env.MONGO_URI);
 		try {
+			console.log(event);
+			await MongooseModule.forRoot(process.env.MONGO_URI);
 			const body = JSON.parse(event.body) as WebhookWhatsappData;
 			const { companyId } = event.pathParameters;
 
 			await this.webhookWhatsApp.webhook(body, companyId);
-			await MongooseModule.finish();
 			return {
 				statusCode: 200,
 				body: JSON.stringify(
@@ -105,18 +134,15 @@ export class WebhookHandler {
 			const status = err.statusCode ?? 500;
 
 			return {
-				statusCode: status,
+				success: false,
+				error: err.message ?? "Internal server error",
 				status,
-				body: JSON.stringify({
-					message: err.message,
-					statusCode: status,
-					status: status,
-				}),
 			};
 		}
 	}
 
 	async setEfiWebhook(event: APIGatewayProxyEvent) {
+		await MongooseModule.forRoot(process.env.MONGO_URI);
 		const ip = event.headers["x-forwarded-for"];
 		const { hmac, companyId } = event.pathParameters;
 		const company = await this.companyModel.findById(companyId);
@@ -147,6 +173,7 @@ export class WebhookHandler {
 	}
 
 	async webHookPix(event: APIGatewayProxyEvent) {
+		await MongooseModule.forRoot(process.env.MONGO_URI);
 		const ip = event.headers["x-forwarded-for"];
 		const { hmac } = event.pathParameters;
 		const body = JSON.parse(event.body);
@@ -173,6 +200,7 @@ export class WebhookHandler {
 
 	@XApiKeyGuard()
 	async retryContact(event: APIGatewayProxyEvent) {
+		await MongooseModule.forRoot(process.env.MONGO_URI);
 		const { ticketId } = event.pathParameters;
 
 		const ticket = await this.ticketModel
@@ -205,6 +233,7 @@ export class WebhookHandler {
 
 	@XApiKeyGuard()
 	async findTickets(event: APIGatewayProxyEvent) {
+		await MongooseModule.forRoot(process.env.MONGO_URI);
 		const { filter, options } = event.queryStringParameters;
 		const filterParsed = JSON.parse(filter ?? JSON.stringify({}));
 		const tickets = await this.ticketModel
@@ -225,12 +254,15 @@ export class WebhookHandler {
 	}
 
 	async sendMessage(event: APIGatewayProxyEvent) {
+		await MongooseModule.forRoot(process.env.MONGO_URI);
 		await this.contactMessageModel.create(JSON.parse(event.body));
 
 		return {
 			headers: {
 				"Access-Control-Allow-Origin": "*",
 				"Access-Control-Allow-Credentials": false,
+				"Access-Control-Allow-Methods": "POST",
+				"Access-Control-Allow-Headers": "Content-Type, x-api-key",
 			},
 			statusCode: 200,
 			status: 200,

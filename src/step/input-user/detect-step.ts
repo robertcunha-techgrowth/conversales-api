@@ -47,7 +47,15 @@ export class DetectStep extends InputUserStep {
 				stepNumber: ticket.currentStep,
 			})
 			.lean();
-		const menuItem = step.menu.items.find((item) => item.key === option);
+		const menuItem = step.menu.items.find(
+			(item: { key: string }) => item.key === option
+		);
+		if (!menuItem) {
+			throw {
+				statusCode: 400,
+				message: "Invalid option",
+			};
+		}
 		const nextStepNumber = menuItem.stepNumber;
 		const nextStep = await this.stepModel.findOne({
 			stepNumber: nextStepNumber,

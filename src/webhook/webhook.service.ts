@@ -2,7 +2,7 @@ import { Model } from "mongoose";
 import { StatusTicket, Ticket } from "../ticket/ticket.entity";
 import { StepService } from "../step/step.service";
 import { Step, StepKind } from "../step/step.entity";
-import { ChatBot } from "../chatbot/chatbot";
+import { ChatBot, InputStepParams } from "../chatbot/chatbot";
 import { Channel } from "../channel/channel";
 
 export interface WebhookData {}
@@ -63,7 +63,7 @@ export abstract class WebhookService {
 
 	async retryContact(ticket: Ticket) {
 		if (ticket.retryCount > 0) {
-			const message = await this.chatbot.getMessageTemplate(
+			const message = await this.chatbot.getAIResponseText(
 				`O cliente está ausente. Crie uma mensagem chamando ele de volta para a conversa e respeite a regra a seguir. ${ticket.previousInput.rule}`,
 				ticket.previousInput.params,
 				ticket
@@ -81,7 +81,7 @@ export abstract class WebhookService {
 			return ticket;
 		}
 
-		const message = await this.chatbot.getMessageTemplate(
+		const message = await this.chatbot.getAIResponseText(
 			`Encerre o contato por ausência do cliente.`,
 			{},
 			ticket
@@ -96,5 +96,38 @@ export abstract class WebhookService {
 			}
 		);
 		return ticket;
+	}
+
+	protected async sendMessage(
+		rule: string,
+		params: InputStepParams,
+		from: string,
+		ticket: Ticket
+	) {
+		const message = await this.chatbot.getAIResponseText(rule, params, ticket);
+		await this.channel.sendMessage(from, message);
+	}
+
+	protected async runStepForTicket(ticket: Ticket, message: string) {
+		const step = await this.stepModel.findOne({
+			stepNumber: ticket.currentStep,
+			company: ticket.company,
+		});
+		const { kind } = step;
+		try {
+			const { rule, params } = await this.steps[kind].run(ticket, message);
+			console.log(`Rule: ${rule}\nParams: ${params}`);
+			await this.sendMessage(rule, params, ticket.from, ticket);
+			return ticket;
+		} catch (err) {
+			console.log(err);
+			await this.sendMessage(
+				`Atenção: a regra a seguir deve vir acompanhada de uma mensagem informando ao usuário que o bot não entendeu a opção digitada. \n${ticket.previousInput.rule}`,
+				ticket.previousInput?.params,
+				ticket.from,
+				ticket
+			);
+			return ticket;
+		}
 	}
 }

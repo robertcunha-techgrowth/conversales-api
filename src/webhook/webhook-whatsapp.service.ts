@@ -77,6 +77,7 @@ export interface FindIdParamsWhatsapp extends FindIdParams {
 @Injectable()
 export class WebhookWhatsappService extends WebhookService {
 	protected override findId(data: FindIdParamsWhatsapp): string {
+		console.log(data);
 		return data.from;
 	}
 
@@ -90,9 +91,8 @@ export class WebhookWhatsappService extends WebhookService {
 		@Inject(DetectStep.name) detectStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
 		@Inject(PaymentStep.name) paymentStep: StepService,
-		// @Inject("StepModel") private readonly stepModel: Model<Step>,
 		@Inject("Chatbot") chatbot: ChatBot,
-		@Inject("Channel") channel: Channel,
+		@Inject("ChannelWhatsapp") channel: Channel,
 		@Inject("StepModel") stepModel: Model<Step>,
 		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService,
 		@Inject(WaitPaymentStep.name) private readonly waitPaymentStep: StepService,
@@ -124,7 +124,12 @@ export class WebhookWhatsappService extends WebhookService {
 		const messages = data.entry
 			.map((entry) => entry.changes.map((change) => change.value.messages))
 			.flat()
-			.flat();
+			.flat()
+			.filter((message) => message);
+
+		if (messages.length === 0) {
+			return null;
+		}
 
 		const promisesTicketWithMessage = messages.map((message) => {
 			const from = this.findId(message);
@@ -138,8 +143,6 @@ export class WebhookWhatsappService extends WebhookService {
 
 		await Promise.all(runPromises);
 
-		// toDo: this is shit return
-		// change it after define better what the fuck we should return
 		return ticketAndMessage[0].ticket;
 	}
 
@@ -153,13 +156,5 @@ export class WebhookWhatsappService extends WebhookService {
 			ticket,
 			message,
 		};
-	}
-
-	private async runStepForTicket(ticket: Ticket, message: string) {
-		const step = await this.stepModel.findOne({
-			stepNumber: ticket.currentStep,
-		});
-		const { kind } = step;
-		return this.steps[kind].run(ticket, message);
 	}
 }

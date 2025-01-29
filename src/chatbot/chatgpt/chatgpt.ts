@@ -19,7 +19,7 @@ export class ChatGpt implements ChatBot {
 		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>
 	) {}
 
-	async getMessageTemplate(
+	async getAIResponseText(
 		rule: string,
 		params: Record<string, any>,
 		ticket: Ticket
@@ -65,11 +65,13 @@ export class ChatGpt implements ChatBot {
 
 	private async sendMessageToThread(threadId: string, message: string) {
 		await this.addMessageToThread(threadId, message);
+		console.log(`Thread ID: ${threadId}\nMensagem: ${message}`);
 		const run = await this.threadRun(threadId, this.assistantId);
 		await this.checkRunStatus(threadId, run.id);
 		const assistantMessage = await this.getAssistantResponse(threadId);
 		// toDo: the return of this shit is fucking wrong
 		// should fix this shit
+		console.log(assistantMessage);
 		return assistantMessage as any;
 	}
 

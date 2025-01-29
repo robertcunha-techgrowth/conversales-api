@@ -13,6 +13,7 @@ import { PaymentModule } from "../payment/infrastructure/payment.module";
 import { PixWebhookService } from "./pix-webhook-service";
 import { ContactMessageModule } from "../contact-message/contact-message.module";
 import { NotifyModule } from "../notify/notify.module";
+import { WhatsappModule } from "../channel/whatsapp/whatsapp.module";
 const WebhookControllerProvider = new ClassProvider({
 	provide: "WebhookHandler",
 	useClass: WebhookHandler,
@@ -40,6 +41,7 @@ const PixWebhookServiceProvider = new ClassProvider({
 		ProductModule,
 		ChatGptModule,
 		TelegramModule,
+		WhatsappModule,
 		CompanyModule,
 		PaymentModule,
 		CompanyModule,

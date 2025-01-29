@@ -26,7 +26,7 @@ const WhatsappNumberIdProvider = new FactoryProvider({
 });
 
 const WhatsappBusinessApiProvider = new ClassProvider({
-	provide: "Channel",
+	provide: "ChannelWhatsapp",
 	useClass: WhatsappChannel,
 });
 

@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import { Prop } from "../common/database/prop.decorator";
 import { Schema } from "../common/database/schema.decorator";
 import { SchemaFactory } from "../common/database/schema.factory";
-import { Menu, MenuSchema } from "../menu/menu.entity";
 import { Company } from "../company/company.entity";
+import { MenuSchema, Menu } from "../menu/menu.entity";
 
 export enum StepKind {
 	GREETING = "GREETING",
