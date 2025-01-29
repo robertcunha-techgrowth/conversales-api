@@ -45,7 +45,7 @@ export class WhatsappChannel implements WhatsapBusiness {
 		chatId: string,
 		text: string
 	): Promise<WhatsapBussinessResponse> {
-		const response = await this.instance.post(`${this.wppNumberId}/messages`, {
+		const response = await this.instance.post(`/${this.wppNumberId}/messages`, {
 			messaging_product: "whatsapp",
 			to: chatId,
 			type: "text",
