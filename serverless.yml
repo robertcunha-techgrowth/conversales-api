@@ -86,5 +86,7 @@ functions:
           method: post
 
 package:
+  excludeDevDependencies: true
+  individually: true
   include:
     - certify.p12
