@@ -51,7 +51,7 @@ export class PixWebhookService {
 			company: ticket.company,
 		});
 
-		const botTemplate = await this.chatbot.getMessageTemplate(
+		const botTemplate = await this.chatbot.getAIResponseText(
 			step.rule,
 			{},
 			ticket
