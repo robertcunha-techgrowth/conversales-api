@@ -26,13 +26,6 @@ provider:
         - x-api-key
 
 functions:
-  hello:
-    handler: index.handler
-    events:
-      - httpApi:
-          path: /
-          method: get
-
   webhook-whatsapp-validation:
     handler: src/webhook/index.whatsappValidation
     events:
