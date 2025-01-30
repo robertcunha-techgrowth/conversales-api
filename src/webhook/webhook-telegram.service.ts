@@ -18,6 +18,10 @@ import { PaymentStep } from "../step/payment/domain/payment-step";
 import { ContactInfoStep } from "../step/contact-info-step";
 import { WaitPaymentStep } from "../step/payment/domain/wait-payment.step";
 import { RateServiceStep } from "../step/input-user/rate-service-step";
+import { SetNameStep } from "../step/set-name-step";
+import { SetCnpjStep } from "../step/set-cnpj-step";
+import { SetEmailStep } from "../step/set-email-step";
+import { SetCellphoneStep } from "../step/set-cellphone-step";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
@@ -54,7 +58,10 @@ export class WebhookTelegramService extends WebhookService {
 		@Inject(IntroStep.name) normalStep: StepService,
 		@Inject(ListProductsStep.name) listProductsStep: StepService,
 		@Inject(AddProductStep.name) addProduct: StepService,
-		@Inject(SetPropertyStep.name) setProperty: StepService,
+		@Inject(SetNameStep.name) setNameStep: StepService,
+		@Inject(SetCnpjStep.name) setCnpjStep: StepService,
+		@Inject(SetEmailStep.name) setEmailStep: StepService,
+		@Inject(SetCellphoneStep.name) setCellphoneStep: StepService,
 		@Inject(CheckoutStep.name) checkoutStep: StepService,
 		@Inject(DetectStep.name) detectStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
@@ -62,9 +69,9 @@ export class WebhookTelegramService extends WebhookService {
 		@Inject("Chatbot") chatbot: ChatBot,
 		@Inject("Channel") channel: Channel,
 		@Inject("StepModel") stepModel: Model<Step>,
-		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService,
-		@Inject(WaitPaymentStep.name) private readonly waitPaymentStep: StepService,
-		@Inject(RateServiceStep.name) private readonly rateServiceStep: StepService
+		@Inject(ContactInfoStep.name) contactInfoStep: StepService,
+		@Inject(WaitPaymentStep.name) waitPaymentStep: StepService,
+		@Inject(RateServiceStep.name) rateServiceStep: StepService
 	) {
 		super(
 			ticketModel,
@@ -72,7 +79,6 @@ export class WebhookTelegramService extends WebhookService {
 				GREETING: normalStep,
 				LIST_PRODUCTS: listProductsStep,
 				ADD_PRODUCT: addProduct,
-				SET_PROPERTY: setProperty,
 				CHECKOUT: checkoutStep,
 				DETECT_STEP: detectStep,
 				FINISH_CONTACT: finishContactStep,
@@ -80,6 +86,10 @@ export class WebhookTelegramService extends WebhookService {
 				CONTACT_INFO: contactInfoStep,
 				WAIT_PAYMENT: waitPaymentStep,
 				RATE_SERVICE: rateServiceStep,
+				SET_NAME: setNameStep,
+				SET_EMAIL: setEmailStep,
+				SET_CELLPHONE: setCellphoneStep,
+				SET_CNPJ: setCnpjStep,
 			},
 			chatbot,
 			stepModel,

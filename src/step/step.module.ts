@@ -20,6 +20,10 @@ import { ContactInfoStep } from "./contact-info-step";
 import { CompanyModule } from "../company/company.module";
 import { WaitPaymentStep } from "./payment/domain/wait-payment.step";
 import { RateServiceStep } from "./input-user/rate-service-step";
+import { SetNameStep } from "./set-name-step";
+import { SetCnpjStep } from "./set-cnpj-step";
+import { SetEmailStep } from "./set-email-step";
+import { SetCellphoneStep } from "./set-cellphone-step";
 
 const StepModelProvider = new FactoryProvider({
 	provide: "StepModel",
@@ -38,9 +42,24 @@ const ListProductsStepProvider = new ClassProvider({
 	useClass: ListProductsStep,
 });
 
-const SetPropertyStepProvider = new ClassProvider({
-	provide: SetPropertyStep.name,
-	useClass: SetPropertyStep,
+const SetNameStepProvider = new ClassProvider({
+	provide: SetNameStep.name,
+	useClass: SetNameStep,
+});
+
+const SetCnpjStepProvider = new ClassProvider({
+	provide: SetCnpjStep.name,
+	useClass: SetCnpjStep,
+});
+
+const SetEmailStepProvider = new ClassProvider({
+	provide: SetEmailStep.name,
+	useClass: SetEmailStep,
+});
+
+const SetCellphoneStepProvider = new ClassProvider({
+	provide: SetCellphoneStep.name,
+	useClass: SetCellphoneStep,
 });
 
 const AddProductStepProvider = new ClassProvider({
@@ -89,7 +108,6 @@ const FinishContactProvider = new ClassProvider({
 		NormalStepProvider,
 		ListProductsStepProvider,
 		StepModelProvider,
-		SetPropertyStepProvider,
 		AddProductStepProvider,
 		CheckoutStepProvider,
 		FinishContactProvider,
@@ -97,13 +115,16 @@ const FinishContactProvider = new ClassProvider({
 		ContactInfoStepProvider,
 		WaitPaymentStepProvider,
 		RateServiceStepProvider,
+		SetNameStepProvider,
+		SetCnpjStepProvider,
+		SetEmailStepProvider,
+		SetCellphoneStepProvider,
 		DetectStepProvider,
 	],
 	exports: [
 		NormalStepProvider,
 		ListProductsStepProvider,
 		StepModelProvider,
-		SetPropertyStepProvider,
 		AddProductStepProvider,
 		CheckoutStepProvider,
 		FinishContactProvider,
@@ -111,6 +132,10 @@ const FinishContactProvider = new ClassProvider({
 		ContactInfoStepProvider,
 		WaitPaymentStepProvider,
 		RateServiceStepProvider,
+		SetNameStepProvider,
+		SetCnpjStepProvider,
+		SetEmailStepProvider,
+		SetCellphoneStepProvider,
 		DetectStepProvider,
 	],
 })
