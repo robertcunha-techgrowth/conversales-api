@@ -13,6 +13,12 @@ export class PixPayment extends Payment {
 		type: String,
 		required: true,
 	})
+	linkPix: string;
+
+	@Prop({
+		type: String,
+		required: true,
+	})
 	externalTransactionId: string;
 }
 

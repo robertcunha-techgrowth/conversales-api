@@ -6,6 +6,7 @@ import { PixPayment } from "./pix-payment.entity";
 import {
 	CobData,
 	EfiPixResponse,
+	LocResponse,
 	PaymentDomainService,
 } from "./payment.service";
 import { EndToEndPix } from "../infrastructure/types";
@@ -20,10 +21,12 @@ export class PixPaymentDomainService extends PaymentDomainService {
 
 	override async create(cobData: CobData, token: string, ticketId: string) {
 		const response = await this.createPaymentOnEfi(cobData, token);
+		const responseLoc = await this.getLoc(response.loc.id, token);
 		const payment: PixPayment = {
 			ticket: new mongoose.Types.ObjectId(ticketId),
 			pixCopyAndPaste: response.pixCopiaECola,
 			externalTransactionId: response.txid,
+			linkPix: responseLoc.linkVisualizacao,
 		};
 		return this.createInDatabase(payment);
 	}
@@ -33,6 +36,15 @@ export class PixPaymentDomainService extends PaymentDomainService {
 		token: string
 	): Promise<EfiPixResponse> {
 		const response = await this.axios.post("/cob", cobData, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	}
+
+	private async getLoc(locId: number, token: string): Promise<LocResponse> {
+		const response = await this.axios.get(`/loc/${locId}/qrcode`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
