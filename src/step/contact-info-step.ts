@@ -40,6 +40,7 @@ export class ContactInfoStep extends StepService {
 			rule: step.rule,
 			params: {
 				company: company,
+				channelFormat: ticket.channel,
 			},
 		};
 	}

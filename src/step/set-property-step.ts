@@ -11,8 +11,7 @@ export interface SetPropertyUserMessageParams extends InputStepParams {
 	value: string;
 }
 
-@Injectable()
-export class SetPropertyStep extends StepService {
+export abstract class SetPropertyStep extends StepService {
 	[key: string]: any;
 
 	override async run(
@@ -23,7 +22,7 @@ export class SetPropertyStep extends StepService {
 			stepNumber: ticket.currentStep,
 		});
 		const { property } = step;
-		const value = await this[property](text);
+		const value = await this.runValidation(text);
 		ticket.user[property] = value;
 
 		await this.updateTicket(ticket._id.toString(), {
@@ -31,7 +30,9 @@ export class SetPropertyStep extends StepService {
 			currentStep: step.chainedStep,
 			previousInput: {
 				rule: step.rule,
-				params: {},
+				params: {
+					channelFormat: ticket.channel,
+				},
 			},
 		});
 		return {
@@ -39,55 +40,7 @@ export class SetPropertyStep extends StepService {
 		};
 	}
 
-	private async name(value: string) {
-		if (!value) {
-			throw {
-				statusCode: 400,
-				body: {
-					message: "Name is required.",
-				},
-			};
-		}
-		return value;
-	}
-
-	private async nationalId(value: string) {
-		const nationalId = value.replace(/\D/g, "");
-		if (!nationalId) {
-			throw {
-				statusCode: 400,
-				body: {
-					message: "National ID is required.",
-				},
-			};
-		}
-		return nationalId;
-	}
-
-	private async email(value: string) {
-		if (!value) {
-			throw {
-				statusCode: 400,
-				body: {
-					message: "Email is required.",
-				},
-			};
-		}
-		return value;
-	}
-
-	private async cellphone(value: string) {
-		const cellphone = value.replace(/\D/g, "");
-		if (!cellphone) {
-			throw {
-				statusCode: 400,
-				body: {
-					message: "Cellphone is required.",
-				},
-			};
-		}
-		return cellphone;
-	}
+	protected abstract runValidation(data: string): Promise<string>;
 
 	constructor(
 		@Inject("StepModel") stepModel: Model<Step>,

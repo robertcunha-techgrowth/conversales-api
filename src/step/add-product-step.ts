@@ -57,6 +57,7 @@ export class AddProductStep extends StepService {
 				price: product.price,
 				description: product.description,
 			},
+			channelFormat: ticket.channel,
 		};
 
 		await this.updateTicket(ticket._id.toString(), {

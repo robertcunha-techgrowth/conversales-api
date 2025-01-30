@@ -42,6 +42,7 @@ export class ListProductsStep extends StepService {
 				};
 				return prev;
 			}, {}),
+			channelFormat: ticket.channel,
 		};
 
 		await this.ticketModel.findOneAndUpdate(

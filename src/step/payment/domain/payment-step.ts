@@ -68,7 +68,8 @@ export class PaymentStep extends StepService {
 		);
 
 		const params = {
-			pixCopyAndPaste: (payment as PixPayment).pixCopyAndPaste,
+			linkPix: (payment as PixPayment).linkPix,
+			channelFormat: ticket.channel,
 		};
 
 		await this.updateTicket(ticket._id.toString(), {

@@ -54,6 +54,7 @@ export class CheckoutStep extends StepService {
 				};
 			}),
 			total: cart.reduce((acc, product) => acc + product.price, 0),
+			channelFormat: ticket.channel,
 		};
 
 		await this.updateTicket(ticket._id.toString(), {

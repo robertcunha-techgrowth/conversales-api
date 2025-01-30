@@ -2,7 +2,7 @@ import { Model } from "mongoose";
 import { OutputTaskInterpretation } from "../../../chatbot/chatbot";
 import { Inject } from "../../../common/dependency-injection/inject";
 import { Injectable } from "../../../common/dependency-injection/injectable";
-import { Ticket } from "../../../ticket/ticket.entity";
+import { StatusTicket, Ticket } from "../../../ticket/ticket.entity";
 import { StepService } from "../../step.service";
 import { Step } from "../../step.entity";
 
@@ -22,9 +22,25 @@ export class WaitPaymentStep extends StepService {
 		const step = await this.stepModel.findOne({
 			stepNumber: ticket.currentStep,
 		});
+
+		await this.ticketModel.findOneAndUpdate(
+			{
+				_id: ticket._id,
+			},
+			{
+				previousInput: {
+					rule: step.rule,
+					params: {
+						channelFormat: ticket.channel,
+					},
+				},
+			}
+		);
 		return {
 			rule: step.rule,
-			params: {},
+			params: {
+				channelFormat: ticket.channel,
+			},
 		};
 	}
 }

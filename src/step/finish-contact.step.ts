@@ -30,7 +30,9 @@ export class FinishContactStep extends StepService {
 			status: StatusTicket.Closed,
 		});
 		return {
-			params: {},
+			params: {
+				channelFormat: ticket.channel,
+			},
 			rule: step.rule,
 		};
 	}

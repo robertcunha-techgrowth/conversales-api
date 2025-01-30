@@ -38,6 +38,7 @@ export class IntroStep extends StepService {
 				rule: step.rule,
 				params: {
 					menu,
+					channelFormat: ticket.channel,
 				},
 			},
 		});
@@ -46,6 +47,7 @@ export class IntroStep extends StepService {
 			rule: step.rule,
 			params: {
 				menu,
+				channelFormat: ticket.channel,
 			},
 		};
 	}
