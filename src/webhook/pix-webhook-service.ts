@@ -9,12 +9,13 @@ import { ChatBot } from "../chatbot/chatbot";
 import { Ticket } from "../ticket/ticket.entity";
 import { Step, StepKind } from "../step/step.entity";
 import { Notify, NotifyWhatsapp } from "../notify/notify";
+import { PixPayment } from "../payment/domain/pix-payment.entity";
 
 @Injectable()
 export class PixWebhookService {
 	constructor(
 		@Inject("PaymentPixModel")
-		private readonly paymentModel: Model<Payment>,
+		private readonly paymentModel: Model<PixPayment>,
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
 		@Inject("StepModel") private readonly stepModel: Model<Step>,
@@ -31,7 +32,7 @@ export class PixWebhookService {
 
 	private async executePayment(value: EndToEndPix) {
 		const payment = await this.paymentModel.findOneAndUpdate(
-			{ txid: value.txid },
+			{ externalTransactionId: value.txid },
 			{
 				status: PaymentStatus.PAID,
 			},
@@ -39,6 +40,14 @@ export class PixWebhookService {
 				new: true,
 			}
 		);
+
+		if (!payment) {
+			throw {
+				statusCode: 404,
+				status: 404,
+				message: `Can't find payment with txid ${value.txid}`,
+			};
+		}
 
 		const ticketId = payment.ticket;
 
