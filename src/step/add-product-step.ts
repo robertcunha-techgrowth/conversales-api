@@ -6,6 +6,7 @@ import { Step } from "./step.entity";
 import { StepService } from "./step.service";
 import { Inject } from "../common/dependency-injection/inject";
 import { Product } from "../product/product.entity";
+import { MenuItem } from "../menu/menu.entity";
 
 export interface StepParamsAddProduct extends InputStepParams {
 	num: number;
@@ -50,6 +51,12 @@ export class AddProductStep extends StepService {
 			};
 		}
 
+		const nextStep = await this.stepModel
+			.findOne({
+				stepNumber: step.chainedStep,
+			})
+			.lean();
+
 		const params = {
 			product: {
 				num: product.num,
@@ -58,6 +65,13 @@ export class AddProductStep extends StepService {
 				description: product.description,
 			},
 			channelFormat: ticket.channel,
+			menu: nextStep.menu.items.reduce<Record<number, MenuItem>>(
+				(prev, item, index) => {
+					prev[index + 1] = item;
+					return prev;
+				},
+				{}
+			),
 		};
 
 		await this.updateTicket(ticket._id.toString(), {

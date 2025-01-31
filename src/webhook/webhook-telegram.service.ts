@@ -22,6 +22,7 @@ import { SetNameStep } from "../step/set-name-step";
 import { SetCnpjStep } from "../step/set-cnpj-step";
 import { SetEmailStep } from "../step/set-email-step";
 import { SetCellphoneStep } from "../step/set-cellphone-step";
+import { AskForDataStep } from "../step/ask-for-data-step";
 
 export interface WebhookTelegramData extends WebhookData {
 	message: {
@@ -69,6 +70,7 @@ export class WebhookTelegramService extends WebhookService {
 		@Inject("Chatbot") chatbot: ChatBot,
 		@Inject("Channel") channel: Channel,
 		@Inject("StepModel") stepModel: Model<Step>,
+		@Inject(AskForDataStep.name) askForDataStep: StepService,
 		@Inject(ContactInfoStep.name) contactInfoStep: StepService,
 		@Inject(WaitPaymentStep.name) waitPaymentStep: StepService,
 		@Inject(RateServiceStep.name) rateServiceStep: StepService
@@ -90,6 +92,7 @@ export class WebhookTelegramService extends WebhookService {
 				SET_EMAIL: setEmailStep,
 				SET_CELLPHONE: setCellphoneStep,
 				SET_CNPJ: setCnpjStep,
+				ASK_FOR_DATA: askForDataStep,
 			},
 			chatbot,
 			stepModel,

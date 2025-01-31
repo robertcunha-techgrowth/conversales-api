@@ -24,6 +24,7 @@ import { SetNameStep } from "./set-name-step";
 import { SetCnpjStep } from "./set-cnpj-step";
 import { SetEmailStep } from "./set-email-step";
 import { SetCellphoneStep } from "./set-cellphone-step";
+import { AskForDataStep } from "./ask-for-data-step";
 
 const StepModelProvider = new FactoryProvider({
 	provide: "StepModel",
@@ -102,6 +103,11 @@ const FinishContactProvider = new ClassProvider({
 	useClass: FinishContactStep,
 });
 
+const AskForDataStepPrvider = new ClassProvider({
+	provide: AskForDataStep.name,
+	useClass: AskForDataStep,
+});
+
 @ModuleHandler({
 	imports: [TicketModule, ProductModule, PaymentModule, CompanyModule],
 	providers: [
@@ -118,6 +124,7 @@ const FinishContactProvider = new ClassProvider({
 		SetNameStepProvider,
 		SetCnpjStepProvider,
 		SetEmailStepProvider,
+		AskForDataStepPrvider,
 		SetCellphoneStepProvider,
 		DetectStepProvider,
 	],
@@ -135,6 +142,7 @@ const FinishContactProvider = new ClassProvider({
 		SetNameStepProvider,
 		SetCnpjStepProvider,
 		SetEmailStepProvider,
+		AskForDataStepPrvider,
 		SetCellphoneStepProvider,
 		DetectStepProvider,
 	],

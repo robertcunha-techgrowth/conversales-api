@@ -16,6 +16,7 @@ import { SetCellphoneStep } from "../set-cellphone-step";
 import { SetCnpjStep } from "../set-cnpj-step";
 import { SetEmailStep } from "../set-email-step";
 import { SetNameStep } from "../set-name-step";
+import { AskForDataStep } from "../ask-for-data-step";
 
 @Injectable()
 export class DetectStep extends InputUserStep {
@@ -33,7 +34,8 @@ export class DetectStep extends InputUserStep {
 		@Inject(SetCellphoneStep.name) setCellphoneStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
 		@Inject(PaymentStep.name) paymentStep: StepService,
-		@Inject(ContactInfoStep.name) contactInfoStep: StepService
+		@Inject(ContactInfoStep.name) contactInfoStep: StepService,
+		@Inject(AskForDataStep.name) askForDataStep: StepService
 	) {
 		super(model, ticketModel);
 		this.options = {
@@ -47,6 +49,7 @@ export class DetectStep extends InputUserStep {
 			[StepKind.FINISH_CONTACT]: finishContactStep,
 			[StepKind.PAYMENT]: paymentStep,
 			[StepKind.CONTACT_INFO]: contactInfoStep,
+			[StepKind.ASK_FOR_DATA]: askForDataStep,
 		};
 	}
 

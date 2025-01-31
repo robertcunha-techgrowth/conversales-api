@@ -22,6 +22,7 @@ import { SetCellphoneStep } from "../step/set-cellphone-step";
 import { SetCnpjStep } from "../step/set-cnpj-step";
 import { SetEmailStep } from "../step/set-email-step";
 import { SetNameStep } from "../step/set-name-step";
+import { AskForDataStep } from "../step/ask-for-data-step";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
@@ -98,6 +99,7 @@ export class WebhookWhatsappService extends WebhookService {
 		@Inject(DetectStep.name) detectStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
 		@Inject(PaymentStep.name) paymentStep: StepService,
+		@Inject(AskForDataStep.name) askForDataStep: StepService,
 		@Inject("Chatbot") chatbot: ChatBot,
 		@Inject("ChannelWhatsapp") channel: Channel,
 		@Inject("StepModel") stepModel: Model<Step>,
@@ -122,6 +124,7 @@ export class WebhookWhatsappService extends WebhookService {
 				CONTACT_INFO: contactInfoStep,
 				WAIT_PAYMENT: waitPaymentStep,
 				RATE_SERVICE: rateServiceStep,
+				ASK_FOR_DATA: askForDataStep,
 			},
 			chatbot,
 			stepModel,
