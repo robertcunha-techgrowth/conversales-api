@@ -4,7 +4,7 @@ import {
 } from "@aws-sdk/client-secrets-manager";
 import { OutputTaskInterpretation } from "../../../chatbot/chatbot";
 import { Injectable } from "../../../common/dependency-injection/injectable";
-import { Ticket } from "../../../ticket/ticket.entity";
+import { StatusTicket, Ticket } from "../../../ticket/ticket.entity";
 import { StepService } from "../../step.service";
 import { Model } from "mongoose";
 import { Inject } from "../../../common/dependency-injection/inject";
@@ -79,6 +79,7 @@ export class PaymentStep extends StepService {
 				params,
 			},
 			sendNotify: false,
+			status: StatusTicket.Buyed,
 		});
 
 		return {

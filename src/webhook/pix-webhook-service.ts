@@ -1,13 +1,12 @@
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
 import { Injectable } from "../common/dependency-injection/injectable";
-import { Company } from "../company/company.entity";
 import { Payment, PaymentStatus } from "../payment/domain/payment.entity";
 import { EndToEndPix } from "../payment/infrastructure/types";
 import { Channel } from "../channel/channel";
 import { ChatBot } from "../chatbot/chatbot";
 import { Ticket } from "../ticket/ticket.entity";
-import { Step, StepKind } from "../step/step.entity";
+import { Step } from "../step/step.entity";
 import { Notify, NotifyWhatsapp } from "../notify/notify";
 import { PixPayment } from "../payment/domain/pix-payment.entity";
 
@@ -18,6 +17,7 @@ export class PixWebhookService {
 		private readonly paymentModel: Model<PixPayment>,
 		@Inject("Chatbot") private readonly chatbot: ChatBot,
 		@Inject("Channel") private readonly channel: Channel,
+		@Inject("ChannelWhatsapp") private readonly channelWhatsapp: Channel,
 		@Inject("StepModel") private readonly stepModel: Model<Step>,
 		@Inject("TicketModel") private readonly ticketModel: Model<Ticket>,
 		@Inject(NotifyWhatsapp.name) private readonly notifyWhatsapp: Notify
@@ -66,7 +66,11 @@ export class PixWebhookService {
 			ticket
 		);
 
-		await this.channel.sendMessage(ticket.from, botTemplate);
+		if (ticket.channel === "WHATSAPP") {
+			await this.channelWhatsapp.sendMessage(ticket.from, botTemplate);
+		} else {
+			await this.channel.sendMessage(ticket.from, botTemplate);
+		}
 
 		await this.ticketModel.findOneAndUpdate(
 			{
