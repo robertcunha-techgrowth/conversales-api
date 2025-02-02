@@ -59,6 +59,7 @@ functions:
 
   pix-webhook:
     handler: src/webhook/index.pix
+    timeout: 30
     events:
       - httpApi:
           path: /webhook/{companyId}/{hmac}/pix
