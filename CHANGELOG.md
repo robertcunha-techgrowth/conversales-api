@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.4.0...v1.5.0) (2025-02-12)
+
+
+### Features
+
+* ask for data ([09efd97](https://github.com/Techgrowth-Labs/conversales-api/commit/09efd97cd260f1338a213ad4a2a37308e1ba8f2e))
+* channelFormat, to change the format of messages for each channel ([679b2b1](https://github.com/Techgrowth-Labs/conversales-api/commit/679b2b1ce6ff2ff6009a6771ba7191ada512a3bd))
+* Set Property validations ([af10b27](https://github.com/Techgrowth-Labs/conversales-api/commit/af10b2722c8314b21f7c561c7e44eead356d01b3))
+
+
+### Bug Fixes
+
+* externalTransactionId ([c1d5ca8](https://github.com/Techgrowth-Labs/conversales-api/commit/c1d5ca8385e30f5af8168c3dc90ddf91623397b0))
+
 ## [1.4.0](https://github.com/Techgrowth-Labs/conversales-api/compare/v1.3.0...v1.4.0) (2025-01-29)
 
 
