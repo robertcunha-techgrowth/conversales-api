@@ -6,6 +6,7 @@ frameworkVersion: "3"
 plugins:
   - serverless-plugin-typescript
   - serverless-dotenv-plugin
+  - serverless-prune-plugin
 
 provider:
   name: aws
@@ -58,6 +59,7 @@ functions:
 
   pix-webhook:
     handler: src/webhook/index.pix
+    timeout: 30
     events:
       - httpApi:
           path: /webhook/{companyId}/{hmac}/pix

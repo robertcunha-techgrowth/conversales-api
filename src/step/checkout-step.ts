@@ -8,6 +8,7 @@ import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
 import { Step } from "./step.entity";
 import { StepService } from "./step.service";
+import { MenuItem } from "../menu/menu.entity";
 
 @Injectable()
 export class CheckoutStep extends StepService {
@@ -54,6 +55,14 @@ export class CheckoutStep extends StepService {
 				};
 			}),
 			total: cart.reduce((acc, product) => acc + product.price, 0),
+			channelFormat: ticket.channel,
+			menu: step.menu.items.reduce<Record<number, MenuItem>>(
+				(prev, item, index) => {
+					prev[index + 1] = item;
+					return prev;
+				},
+				{}
+			),
 		};
 
 		await this.updateTicket(ticket._id.toString(), {

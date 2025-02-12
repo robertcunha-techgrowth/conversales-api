@@ -1,18 +1,17 @@
 import { Model } from "mongoose";
 import { Inject } from "../common/dependency-injection/inject";
-import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
 import { StepService } from "./step.service";
 import { OutputTaskInterpretation, InputStepParams } from "../chatbot/chatbot";
 import { Step } from "./step.entity";
+import { MenuItem } from "../menu/menu.entity";
 
 export interface SetPropertyUserMessageParams extends InputStepParams {
 	property: string;
 	value: string;
 }
 
-@Injectable()
-export class SetPropertyStep extends StepService {
+export abstract class SetPropertyStep extends StepService {
 	[key: string]: any;
 
 	override async run(
@@ -23,71 +22,48 @@ export class SetPropertyStep extends StepService {
 			stepNumber: ticket.currentStep,
 		});
 		const { property } = step;
-		const value = await this[property](text);
+		const value = await this.runValidation(text);
 		ticket.user[property] = value;
+
+		const nextStep = await this.stepModel
+			.findOne({
+				stepNumber: step.chainedStep,
+			})
+			.lean();
 
 		await this.updateTicket(ticket._id.toString(), {
 			user: ticket.user,
 			currentStep: step.chainedStep,
 			previousInput: {
-				rule: step.rule,
-				params: {},
+				rule: nextStep.rule,
+				params: {
+					channelFormat: ticket.channel,
+					menu: nextStep.menu?.items?.reduce<Record<number, MenuItem>>(
+						(prev, item, index) => {
+							prev[index + 1] = item;
+							return prev;
+						},
+						{}
+					),
+				},
 			},
 		});
+
 		return {
-			rule: step.rule,
+			rule: nextStep.rule,
+			params: {
+				menu: nextStep.menu?.items?.reduce<Record<number, MenuItem>>(
+					(prev, item, index) => {
+						prev[index + 1] = item;
+						return prev;
+					},
+					{}
+				),
+			},
 		};
 	}
 
-	private async name(value: string) {
-		if (!value) {
-			throw {
-				statusCode: 400,
-				body: {
-					message: "Name is required.",
-				},
-			};
-		}
-		return value;
-	}
-
-	private async nationalId(value: string) {
-		const nationalId = value.replace(/\D/g, "");
-		if (!nationalId) {
-			throw {
-				statusCode: 400,
-				body: {
-					message: "National ID is required.",
-				},
-			};
-		}
-		return nationalId;
-	}
-
-	private async email(value: string) {
-		if (!value) {
-			throw {
-				statusCode: 400,
-				body: {
-					message: "Email is required.",
-				},
-			};
-		}
-		return value;
-	}
-
-	private async cellphone(value: string) {
-		const cellphone = value.replace(/\D/g, "");
-		if (!cellphone) {
-			throw {
-				statusCode: 400,
-				body: {
-					message: "Cellphone is required.",
-				},
-			};
-		}
-		return cellphone;
-	}
+	protected abstract runValidation(data: string): Promise<string>;
 
 	constructor(
 		@Inject("StepModel") stepModel: Model<Step>,

@@ -49,6 +49,12 @@ export interface EfiPixResponse {
 	pixCopiaECola: string;
 }
 
+export interface LocResponse {
+	qrcode: string;
+	imagemQrcode: string;
+	linkVisualizacao: string;
+}
+
 export abstract class PaymentDomainService {
 	constructor(
 		protected readonly model: Model<Payment>,

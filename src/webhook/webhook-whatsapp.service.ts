@@ -18,6 +18,11 @@ import { PaymentStep } from "../step/payment/domain/payment-step";
 import { ContactInfoStep } from "../step/contact-info-step";
 import { WaitPaymentStep } from "../step/payment/domain/wait-payment.step";
 import { RateServiceStep } from "../step/input-user/rate-service-step";
+import { SetCellphoneStep } from "../step/set-cellphone-step";
+import { SetCnpjStep } from "../step/set-cnpj-step";
+import { SetEmailStep } from "../step/set-email-step";
+import { SetNameStep } from "../step/set-name-step";
+import { AskForDataStep } from "../step/ask-for-data-step";
 
 export interface WebhookWhatsappData extends WebhookData {
 	object: "whatsapp_business_account";
@@ -86,17 +91,21 @@ export class WebhookWhatsappService extends WebhookService {
 		@Inject(IntroStep.name) normalStep: StepService,
 		@Inject(ListProductsStep.name) listProductsStep: StepService,
 		@Inject(AddProductStep.name) addProduct: StepService,
-		@Inject(SetPropertyStep.name) setProperty: StepService,
+		@Inject(SetNameStep.name) setNameStep: StepService,
+		@Inject(SetCnpjStep.name) setCnpjStep: StepService,
+		@Inject(SetEmailStep.name) setEmailStep: StepService,
+		@Inject(SetCellphoneStep.name) setCellphoneStep: StepService,
 		@Inject(CheckoutStep.name) checkoutStep: StepService,
 		@Inject(DetectStep.name) detectStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
 		@Inject(PaymentStep.name) paymentStep: StepService,
+		@Inject(AskForDataStep.name) askForDataStep: StepService,
 		@Inject("Chatbot") chatbot: ChatBot,
 		@Inject("ChannelWhatsapp") channel: Channel,
 		@Inject("StepModel") stepModel: Model<Step>,
-		@Inject(ContactInfoStep.name) private readonly contactInfoStep: StepService,
-		@Inject(WaitPaymentStep.name) private readonly waitPaymentStep: StepService,
-		@Inject(RateServiceStep.name) private readonly rateServiceStep: StepService
+		@Inject(ContactInfoStep.name) contactInfoStep: StepService,
+		@Inject(WaitPaymentStep.name) waitPaymentStep: StepService,
+		@Inject(RateServiceStep.name) rateServiceStep: StepService
 	) {
 		super(
 			ticketModel,
@@ -104,7 +113,10 @@ export class WebhookWhatsappService extends WebhookService {
 				GREETING: normalStep,
 				LIST_PRODUCTS: listProductsStep,
 				ADD_PRODUCT: addProduct,
-				SET_PROPERTY: setProperty,
+				SET_NAME: setNameStep,
+				SET_EMAIL: setEmailStep,
+				SET_CELLPHONE: setCellphoneStep,
+				SET_CNPJ: setCnpjStep,
 				CHECKOUT: checkoutStep,
 				DETECT_STEP: detectStep,
 				FINISH_CONTACT: finishContactStep,
@@ -112,6 +124,7 @@ export class WebhookWhatsappService extends WebhookService {
 				CONTACT_INFO: contactInfoStep,
 				WAIT_PAYMENT: waitPaymentStep,
 				RATE_SERVICE: rateServiceStep,
+				ASK_FOR_DATA: askForDataStep,
 			},
 			chatbot,
 			stepModel,

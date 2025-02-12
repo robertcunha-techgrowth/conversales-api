@@ -10,13 +10,17 @@ export enum StepKind {
 	LIST_PRODUCTS = "LIST_PRODUCTS",
 	ADD_PRODUCT = "ADD_PRODUCT",
 	CHECKOUT = "CHECKOUT",
-	SET_PROPERTY = "SET_PROPERTY",
+	SET_NAME = "SET_NAME",
+	SET_EMAIL = "SET_EMAIL",
+	SET_CELLPHONE = "SET_CELLPHONE",
+	SET_CNPJ = "SET_CNPJ",
 	DETECT_STEP = "DETECT_STEP",
 	FINISH_CONTACT = "FINISH_CONTACT",
 	PAYMENT = "PAYMENT",
 	CONTACT_INFO = "CONTACT_INFO",
 	WAIT_PAYMENT = "WAIT_PAYMENT",
 	RATE_SERVICE = "RATE_SERVICE",
+	ASK_FOR_DATA = "ASK_FOR_DATA",
 	// toDo: Webhook payment must be a step kind
 	// the problem is, who is currently step kind, are demanding also the webhook payment
 	// WEBHOOK_PAYMENT = "WEBHOOK_PAYMENT",

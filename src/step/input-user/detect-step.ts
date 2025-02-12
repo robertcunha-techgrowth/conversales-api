@@ -12,6 +12,11 @@ import { FinishContactStep } from "../finish-contact.step";
 import { PaymentStep } from "../payment/domain/payment-step";
 import { ContactInfoStep } from "../contact-info-step";
 import { InputUserStep } from "./input-user-step";
+import { SetCellphoneStep } from "../set-cellphone-step";
+import { SetCnpjStep } from "../set-cnpj-step";
+import { SetEmailStep } from "../set-email-step";
+import { SetNameStep } from "../set-name-step";
+import { AskForDataStep } from "../ask-for-data-step";
 
 @Injectable()
 export class DetectStep extends InputUserStep {
@@ -23,20 +28,28 @@ export class DetectStep extends InputUserStep {
 		@Inject(ListProductsStep.name) listProductStep: StepService,
 		@Inject(AddProductStep.name) addProduct: StepService,
 		@Inject(CheckoutStep.name) checkout: StepService,
-		@Inject(SetPropertyStep.name) setProperty: StepService,
+		@Inject(SetNameStep.name) setNameStep: StepService,
+		@Inject(SetCnpjStep.name) setCnpjStep: StepService,
+		@Inject(SetEmailStep.name) setEmailStep: StepService,
+		@Inject(SetCellphoneStep.name) setCellphoneStep: StepService,
 		@Inject(FinishContactStep.name) finishContactStep: StepService,
 		@Inject(PaymentStep.name) paymentStep: StepService,
-		@Inject(ContactInfoStep.name) contactInfoStep: StepService
+		@Inject(ContactInfoStep.name) contactInfoStep: StepService,
+		@Inject(AskForDataStep.name) askForDataStep: StepService
 	) {
 		super(model, ticketModel);
 		this.options = {
 			[StepKind.LIST_PRODUCTS]: listProductStep,
 			[StepKind.ADD_PRODUCT]: addProduct,
 			[StepKind.CHECKOUT]: checkout,
-			[StepKind.SET_PROPERTY]: setProperty,
+			[StepKind.SET_NAME]: setNameStep,
+			[StepKind.SET_CNPJ]: setCnpjStep,
+			[StepKind.SET_EMAIL]: setEmailStep,
+			[StepKind.SET_CELLPHONE]: setCellphoneStep,
 			[StepKind.FINISH_CONTACT]: finishContactStep,
 			[StepKind.PAYMENT]: paymentStep,
 			[StepKind.CONTACT_INFO]: contactInfoStep,
+			[StepKind.ASK_FOR_DATA]: askForDataStep,
 		};
 	}
 

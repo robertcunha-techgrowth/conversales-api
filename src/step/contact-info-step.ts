@@ -5,6 +5,7 @@ import { Injectable } from "../common/dependency-injection/injectable";
 import { Ticket } from "../ticket/ticket.entity";
 import { Step } from "./step.entity";
 import { StepService } from "./step.service";
+import { MenuItem } from "../menu/menu.entity";
 
 @Injectable()
 export class ContactInfoStep extends StepService {
@@ -36,10 +37,37 @@ export class ContactInfoStep extends StepService {
 			};
 		}
 
+		const nextStep = await this.stepModel
+			.findOne({
+				stepNumber: step.chainedStep,
+			})
+			.lean();
+
+		await this.updateTicket(ticket._id.toString(), {
+			currentStep: step.chainedStep,
+			previousInput: {
+				rule: nextStep.rule,
+				params: {
+					company: company,
+					channelFormat: ticket.channel,
+				},
+			},
+		});
+
+		const menu = nextStep.menu.items.reduce<Record<number, MenuItem>>(
+			(prev, item, index) => {
+				prev[index + 1] = item;
+				return prev;
+			},
+			{}
+		);
+
 		return {
-			rule: step.rule,
+			rule: `${step.rule}\n${nextStep.rule}`,
 			params: {
 				company: company,
+				channelFormat: ticket.channel,
+				menu,
 			},
 		};
 	}

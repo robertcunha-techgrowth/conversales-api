@@ -13,6 +13,7 @@ export enum StatusTicket {
 	Buyed = "BUYED",
 	Closed = "CLOSED",
 	Abandoned = "ABANDONED",
+	WaitPayment = "WAITING_PAYMENT",
 }
 
 @Schema({

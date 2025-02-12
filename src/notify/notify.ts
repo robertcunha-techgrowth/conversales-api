@@ -17,11 +17,15 @@ export class NotifyWhatsapp extends Notify {
 	}
 
 	async notify(to: string, message: string): Promise<boolean> {
-		const response = await this.notifyAxiosInstance.post("/send", {
-			number: to,
-			message,
-		});
+		try {
+			const response = await this.notifyAxiosInstance.post("/send", {
+				number: to,
+				message,
+			});
 
-		return response.status === 200;
+			return response.status === 200;
+		} catch (err) {
+			console.log(err);
+		}
 	}
 }
